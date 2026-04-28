@@ -3,24 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Wacker Kart Prototype</title>
-    <link rel="stylesheet" href="./styles.css" />
+    <title>Wacker Kart</title>
   </head>
   <body>
-    <main class="layout">
-      <section class="panel">
-        <h1>Wacker Kart Prototype</h1>
-        <p>Arrow keys drive the car. Up accelerates, down brakes/reverses, left and right steer.</p>
-        <p class="hint">Goal for this step: get the toy driving loop feeling stable before adding a track.</p>
-      </section>
-      <canvas
-        id="game"
-        width="960"
-        height="540"
-        aria-label="Wacker Kart prototype game canvas"
-      ></canvas>
-    </main>
-
-    <script src="./game.js"></script>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
   </body>
 </html>

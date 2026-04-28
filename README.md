@@ -1,13 +1,14 @@
 ## Wacker Kart
 
-A 2D, Chicago-themed racing game prototype.
+A 2D, Chicago-themed racing game prototype built toward a larger multiplayer browser game.
 
 ## Current Prototype
 
-The repo currently contains a toy driving loop:
-- blank screen canvas
+The repo is scaffolded for `Vite + Phaser` with a toy driving loop:
+- one Phaser scene
 - one controllable car
 - arrow-key driving
+- game code isolated from the app shell for an easier future move to Next.js
 
 Controls:
 - `ArrowUp`: accelerate
@@ -17,6 +18,19 @@ Controls:
 
 ## Run It
 
-Open [index.html](./index.html) in a browser.
+1. Install dependencies:
+   - `npm install`
+2. Start the dev server:
+   - `npm run dev`
+3. Open the local URL Vite prints in the terminal.
 
-If your browser blocks local file input behavior, serve the folder with a simple static server instead.
+## Structure
+
+- `src/main.js`: browser entry point
+- `src/game/createGame.js`: Phaser bootstrap
+- `src/game/scenes/PrototypeScene.js`: current toy driving scene
+- `src/game/entities/Car.js`: reusable car movement logic
+
+## Why This Structure
+
+The game logic is intentionally kept under `src/game/` so it can later be mounted inside a Next.js client component when you add login, lobbies, and multiplayer shell pages.
