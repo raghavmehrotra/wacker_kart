@@ -23,9 +23,10 @@ export class PrototypeScene extends Phaser.Scene {
 
     this.controls = this.input.keyboard.createCursorKeys();
     this.car = new Car(this, 350, 310);
+    this.cameraTarget = this.add.zone(this.car.sprite.x, this.car.sprite.y, 1, 1);
 
     this.cameras.main.setBounds(0, 0, this.worldWidth, this.worldHeight);
-    this.cameras.main.startFollow(this.car.sprite, true, 0.12, 0.12);
+    this.cameras.main.startFollow(this.cameraTarget, true, 0.12, 0.12);
     this.cameras.main.setZoom(1);
 
     this.add.text(20, 20, "Speed", {
@@ -74,6 +75,11 @@ export class PrototypeScene extends Phaser.Scene {
     } else if (this.isOnShoulder(this.car.sprite.x, this.car.sprite.y)) {
       this.car.applySurfaceDrag(90 * dt);
     }
+
+    const speedRatio = Math.min(Math.abs(this.car.speed) / this.car.maxForwardSpeed, 1);
+    const lookAheadDistance = Phaser.Math.Linear(110, 220, speedRatio);
+    this.cameraTarget.x = this.car.sprite.x + Math.sin(this.car.rotation) * lookAheadDistance;
+    this.cameraTarget.y = this.car.sprite.y - Math.cos(this.car.rotation) * lookAheadDistance;
 
     this.speedText.setText(`${Math.round(this.car.speed)} px/s`);
   }
