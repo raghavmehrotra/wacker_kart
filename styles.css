@@ -1,0 +1,51 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at top, #1f3347 0%, #0c1117 52%, #06080b 100%);
+  color: #f5f1e8;
+}
+
+.layout {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+}
+
+.panel {
+  width: min(960px, 100%);
+  padding: 1rem 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  background: rgba(12, 17, 23, 0.78);
+  backdrop-filter: blur(8px);
+}
+
+.panel h1 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.6rem, 2vw, 2.2rem);
+}
+
+.panel p {
+  margin: 0.3rem 0;
+}
+
+.hint {
+  color: #f3c969;
+}
+
+canvas {
+  width: min(960px, 100%);
+  height: auto;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35);
+  background: #0b0f14;
+}
