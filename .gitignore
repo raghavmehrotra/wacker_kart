@@ -2,3 +2,5 @@ AGENTS.md
 PROJECT_PROPOSAL.md
 node_modules
 dist
+.DS_Store
+assets/references/

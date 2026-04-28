@@ -8,7 +8,7 @@ The repo is scaffolded for `Vite + Phaser` with a toy driving loop:
 - one Phaser scene
 - one controllable car
 - arrow-key driving
-- a larger practice track
+- a stylized Lake Shore Drive out-and-back track
 - camera follow
 - 3-lap race loop with timer and restart
 - game code isolated from the app shell for an easier future move to Next.js
