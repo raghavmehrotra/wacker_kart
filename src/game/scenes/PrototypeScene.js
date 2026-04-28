@@ -61,8 +61,13 @@ export class PrototypeScene extends Phaser.Scene {
     this.finishLine = new Phaser.Geom.Rectangle(872, 690, 120, 28);
     this.southTurnaround = new Phaser.Geom.Rectangle(1010, 3390, 390, 170);
     this.spawnPoint = new Phaser.Math.Vector2(1450, 760);
+    this.malortPickupDurationMs = 5000;
     this.treeObstacles = [
-      { x: 1490, y: 2860, radius: 38 },
+      { x: 1490, y: 2860, radius: 34 },
+    ];
+    this.malortPickups = [
+      { x: 1715, y: 1885, radius: 24, collected: false, sprite: null },
+      { x: 815, y: 2265, radius: 24, collected: false, sprite: null },
     ];
   }
 
@@ -93,9 +98,16 @@ export class PrototypeScene extends Phaser.Scene {
       fontSize: "18px",
     }).setScrollFactor(0);
 
+    this.speedText = this.add.text(20, 68, "Speed 0", {
+      color: "#f5f1e8",
+      fontFamily: "Trebuchet MS, sans-serif",
+      fontSize: "18px",
+    }).setScrollFactor(0);
+
     this.hudObjects = [
       this.lapText,
       this.timerText,
+      this.speedText,
     ];
 
     this.configureHudCamera();
@@ -117,6 +129,7 @@ export class PrototypeScene extends Phaser.Scene {
 
     if (this.raceStarted && !this.raceFinished) {
       this.elapsedMs += delta;
+      this.updateMalortEffect(delta);
       this.car.update(dt, this.controls);
       this.car.keepInBounds(this.worldWidth, this.worldHeight);
 
@@ -130,14 +143,16 @@ export class PrototypeScene extends Phaser.Scene {
       if (this.hitTreeObstacle()) {
         this.car.bounceToPreviousPosition();
         this.car.speed = 0;
+        this.setStatusMessage("Tree collision. You stopped on impact.");
       }
 
+      this.checkMalortPickupCollisions();
       this.updateRaceProgress();
     } else {
       this.car.applySurfaceDrag(320 * dt);
     }
 
-    const speedRatio = Math.min(Math.abs(this.car.speed) / this.car.maxForwardSpeed, 1);
+    const speedRatio = Math.min(Math.abs(this.car.speed) / this.car.getMaxForwardSpeed(), 1);
     const lookAheadDistance = Phaser.Math.Linear(110, 220, speedRatio);
     this.cameraTarget.x = this.car.sprite.x + Math.sin(this.car.rotation) * lookAheadDistance;
     this.cameraTarget.y = this.car.sprite.y - Math.cos(this.car.rotation) * lookAheadDistance;
@@ -154,6 +169,7 @@ export class PrototypeScene extends Phaser.Scene {
       : Math.min(this.completedLaps + 1, this.totalLaps);
     this.lapText.setText(`Lap ${displayedLap} / ${this.totalLaps}`);
     this.timerText.setText(`Time ${this.formatTime(this.elapsedMs)}`);
+    this.speedText.setText(`Speed ${Math.round(Math.abs(this.car.speed))}`);
   }
 
   initializeRaceState() {
@@ -164,6 +180,12 @@ export class PrototypeScene extends Phaser.Scene {
     this.reachedSouthTurnaround = false;
     this.wasInsideSouthTurnaround = false;
     this.wasInsideFinishLine = false;
+    this.malortEffectRemainingMs = 0;
+    this.car?.setEffectMultipliers({
+      speedMultiplier: 1,
+      accelerationMultiplier: 1,
+      steeringMultiplier: 1,
+    });
   }
 
   updateRaceProgress() {
@@ -201,6 +223,81 @@ export class PrototypeScene extends Phaser.Scene {
 
     this.reachedSouthTurnaround = false;
     this.setStatusMessage(`Lap ${this.completedLaps + 1}. Head south again and loop back north.`);
+  }
+
+  updateMalortEffect(delta) {
+    if (this.malortEffectRemainingMs <= 0) {
+      return;
+    }
+
+    this.malortEffectRemainingMs = Math.max(0, this.malortEffectRemainingMs - delta);
+    if (this.malortEffectRemainingMs === 0) {
+      this.car.setEffectMultipliers({
+        speedMultiplier: 1,
+        accelerationMultiplier: 1,
+        steeringMultiplier: 1,
+      });
+      this.setStatusMessage("Malort wore off. Steering restored.");
+    }
+  }
+
+  checkMalortPickupCollisions() {
+    const carBounds = this.car.getBounds();
+
+    for (const pickup of this.malortPickups) {
+      if (pickup.collected) {
+        continue;
+      }
+
+      const pickupBounds = new Phaser.Geom.Rectangle(
+        pickup.x - pickup.radius,
+        pickup.y - pickup.radius,
+        pickup.radius * 2,
+        pickup.radius * 2,
+      );
+
+      if (!Phaser.Geom.Intersects.RectangleToRectangle(carBounds, pickupBounds)) {
+        continue;
+      }
+
+      pickup.collected = true;
+      pickup.sprite?.setVisible(false);
+      this.activateMalortShot();
+      break;
+    }
+  }
+
+  activateMalortShot() {
+    this.malortEffectRemainingMs = this.malortPickupDurationMs;
+    this.car.setEffectMultipliers({
+      speedMultiplier: 1.3,
+      accelerationMultiplier: 1.3,
+      steeringMultiplier: 0.25,
+    });
+    const boostedSpeed = this.car.speed >= 0
+      ? Math.max(this.car.speed * 1.3, 140)
+      : this.car.speed;
+    this.car.speed = Phaser.Math.Clamp(
+      boostedSpeed,
+      this.car.maxReverseSpeed,
+      this.car.getMaxForwardSpeed(),
+    );
+    this.setStatusMessage("Malort shot active: speed up 30%, steering down 75% for 5 seconds.");
+  }
+
+  hitTreeObstacle() {
+    const carBounds = this.car.getBounds();
+
+    return this.treeObstacles.some((tree) => {
+      const obstacleBounds = new Phaser.Geom.Rectangle(
+        tree.x - tree.radius,
+        tree.y - tree.radius,
+        tree.radius * 2,
+        tree.radius * 2,
+      );
+
+      return Phaser.Geom.Intersects.RectangleToRectangle(carBounds, obstacleBounds);
+    });
   }
 
   setStatusMessage(message) {
@@ -254,19 +351,6 @@ export class PrototypeScene extends Phaser.Scene {
     return minDistance;
   }
 
-  hitTreeObstacle() {
-    return this.treeObstacles.some((tree) => {
-      const obstacleBounds = new Phaser.Geom.Rectangle(
-        tree.x - tree.radius,
-        tree.y - tree.radius,
-        tree.radius * 2,
-        tree.radius * 2,
-      );
-
-      return Phaser.Geom.Intersects.RectangleToRectangle(this.car.getBounds(), obstacleBounds);
-    });
-  }
-
   configureHudCamera() {
     this.cameras.main.ignore(this.hudObjects);
 
@@ -303,6 +387,32 @@ export class PrototypeScene extends Phaser.Scene {
         graphics.fillRect(x + col * tileSize, y + row * tileSize, tileSize, tileSize);
       }
     }
+  }
+
+  drawMalortPickup(pickup) {
+    const glow = this.add.circle(0, 0, pickup.radius + 14, 0xf7d24b, 0.32);
+    const ring = this.add.circle(0, 0, pickup.radius + 6, 0x9b1c1c);
+    ring.setStrokeStyle(4, 0xfff3a1);
+    const glass = this.add.circle(0, 0, pickup.radius, 0xb36a1f);
+    glass.setStrokeStyle(4, 0xfff3a1);
+    const inner = this.add.circle(0, 0, pickup.radius - 8, 0xf3cf73);
+
+    const label = this.add.text(0, -1, "M", {
+      color: "#4f1600",
+      fontFamily: "Trebuchet MS, sans-serif",
+      fontSize: "22px",
+      fontStyle: "bold",
+    });
+    label.setOrigin(0.5);
+
+    pickup.sprite = this.add.container(pickup.x, pickup.y, [
+      glow,
+      ring,
+      glass,
+      inner,
+      label,
+    ]);
+    pickup.sprite.setDepth(8);
   }
 
   drawWorld() {
@@ -378,6 +488,10 @@ export class PrototypeScene extends Phaser.Scene {
     );
 
     this.drawCheckerboardLine(872, 690, 15, 4, 8);
+
+    for (const pickup of this.malortPickups) {
+      this.drawMalortPickup(pickup);
+    }
 
     const labelStyle = {
       color: "#f5f1e8",

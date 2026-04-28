@@ -15,32 +15,37 @@ export class Car {
     this.velocity = new Phaser.Math.Vector2(0, 0);
     this.rotation = initialRotation;
     this.speed = 0;
-    this.maxForwardSpeed = 380;
+    this.baseMaxForwardSpeed = 380;
     this.maxReverseSpeed = -140;
-    this.acceleration = 280;
+    this.baseAcceleration = 280;
     this.braking = 380;
     this.drag = 180;
-    this.steeringRate = 2.6;
+    this.baseSteeringRate = 2.6;
+    this.speedMultiplier = 1;
+    this.accelerationMultiplier = 1;
+    this.steeringMultiplier = 1;
     this.previousPosition = new Phaser.Math.Vector2(x, y);
     this.sprite.rotation = this.rotation;
   }
 
   update(dt, controls) {
     this.previousPosition.set(this.sprite.x, this.sprite.y);
+    const acceleration = this.getAcceleration();
 
     if (controls.up.isDown) {
-      this.speed += this.acceleration * dt;
+      this.speed += acceleration * dt;
     } else if (controls.down.isDown) {
       if (this.speed > 0) {
         this.speed -= this.braking * dt;
       } else {
-        this.speed -= this.acceleration * 0.75 * dt;
+        this.speed -= acceleration * 0.75 * dt;
       }
     } else {
       this.speed = this.applyDrag(this.speed, this.drag * dt);
     }
 
-    this.speed = Phaser.Math.Clamp(this.speed, this.maxReverseSpeed, this.maxForwardSpeed);
+    const maxForwardSpeed = this.getMaxForwardSpeed();
+    this.speed = Phaser.Math.Clamp(this.speed, this.maxReverseSpeed, maxForwardSpeed);
 
     if (Math.abs(this.speed) > 4) {
       const direction = this.speed >= 0 ? 1 : -1;
@@ -54,8 +59,8 @@ export class Car {
         steeringInput += 1;
       }
 
-      const steeringScale = Math.min(Math.abs(this.speed) / this.maxForwardSpeed, 1);
-      this.rotation += steeringInput * this.steeringRate * steeringScale * direction * dt;
+      const steeringScale = Math.min(Math.abs(this.speed) / maxForwardSpeed, 1);
+      this.rotation += steeringInput * this.getSteeringRate() * steeringScale * direction * dt;
     }
 
     this.velocity.setTo(Math.sin(this.rotation), -Math.cos(this.rotation)).scale(this.speed * dt);
@@ -72,6 +77,25 @@ export class Car {
 
   applySurfaceDrag(amount) {
     this.speed = this.applyDrag(this.speed, amount);
+  }
+
+  getMaxForwardSpeed() {
+    return this.baseMaxForwardSpeed * this.speedMultiplier;
+  }
+
+  getAcceleration() {
+    return this.baseAcceleration * this.accelerationMultiplier;
+  }
+
+  getSteeringRate() {
+    return this.baseSteeringRate * this.steeringMultiplier;
+  }
+
+  setEffectMultipliers({ speedMultiplier = 1, accelerationMultiplier = 1, steeringMultiplier = 1 }) {
+    this.speedMultiplier = speedMultiplier;
+    this.accelerationMultiplier = accelerationMultiplier;
+    this.steeringMultiplier = steeringMultiplier;
+    this.speed = Phaser.Math.Clamp(this.speed, this.maxReverseSpeed, this.getMaxForwardSpeed());
   }
 
   getBounds() {
