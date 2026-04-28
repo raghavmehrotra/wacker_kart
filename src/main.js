@@ -9,6 +9,7 @@ app.innerHTML = `
       <h1>Wacker Kart Prototype</h1>
       <p>Race the Lake Shore Drive-inspired route from Navy Pier down to 50th Street and back.</p>
       <p>Controls: Space starts the race, arrow keys drive, and R restarts.</p>
+      <p>Malort shots are scattered on the track. Hit one for a 5-second speed boost with much weaker steering.</p>
       <p id="race-status" class="hint">Press Space to begin the Lake Shore Drive run.</p>
       <p class="hint">
         This is the Phaser-based foundation that can later be mounted inside a Next.js shell for login,
