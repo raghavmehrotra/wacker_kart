@@ -10,6 +10,7 @@ The repo is scaffolded for `Vite + Phaser` with a toy driving loop:
 - arrow-key driving
 - a larger practice track
 - camera follow
+- 3-lap race loop with timer and restart
 - game code isolated from the app shell for an easier future move to Next.js
 
 Controls:

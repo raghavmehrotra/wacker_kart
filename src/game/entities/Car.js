@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 
 export class Car {
-  constructor(scene, x, y) {
+  constructor(scene, x, y, initialRotation = 0) {
     this.scene = scene;
     const body = scene.add.rectangle(0, 0, 28, 44, 0xc24b3f);
     body.setStrokeStyle(2, 0x7d2a24);
@@ -13,7 +13,7 @@ export class Car {
     this.height = 44;
 
     this.velocity = new Phaser.Math.Vector2(0, 0);
-    this.rotation = 0;
+    this.rotation = initialRotation;
     this.speed = 0;
     this.maxForwardSpeed = 380;
     this.maxReverseSpeed = -140;
@@ -22,6 +22,7 @@ export class Car {
     this.drag = 180;
     this.steeringRate = 2.6;
     this.previousPosition = new Phaser.Math.Vector2(x, y);
+    this.sprite.rotation = this.rotation;
   }
 
   update(dt, controls) {
@@ -71,6 +72,15 @@ export class Car {
 
   applySurfaceDrag(amount) {
     this.speed = this.applyDrag(this.speed, amount);
+  }
+
+  getBounds() {
+    return new Phaser.Geom.Rectangle(
+      this.sprite.x - this.width / 2,
+      this.sprite.y - this.height / 2,
+      this.width,
+      this.height,
+    );
   }
 
   keepInBounds(width, height) {

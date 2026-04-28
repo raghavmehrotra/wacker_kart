@@ -6,6 +6,7 @@ export class PrototypeScene extends Phaser.Scene {
     super("prototype-scene");
     this.worldWidth = 2200;
     this.worldHeight = 1400;
+    this.totalLaps = 3;
     this.trackSegments = [
       new Phaser.Geom.Rectangle(260, 220, 1680, 180),
       new Phaser.Geom.Rectangle(1760, 220, 180, 960),
@@ -16,14 +17,19 @@ export class PrototypeScene extends Phaser.Scene {
       new Phaser.Geom.Rectangle(760, 820, 680, 180),
       new Phaser.Geom.Rectangle(760, 400, 180, 600),
     ];
+    this.finishLine = new Phaser.Geom.Rectangle(402, 236, 32, 156);
+    this.checkpoint = new Phaser.Geom.Rectangle(1748, 652, 192, 180);
   }
 
   create() {
     this.drawWorld();
+    this.initializeRaceState();
 
     this.controls = this.input.keyboard.createCursorKeys();
-    this.car = new Car(this, 350, 310);
+    this.car = new Car(this, 350, 310, Math.PI / 2);
     this.cameraTarget = this.add.zone(this.car.sprite.x, this.car.sprite.y, 1, 1);
+    this.restartKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
+    this.startKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
     this.cameras.main.setBounds(0, 0, this.worldWidth, this.worldHeight);
     this.cameras.main.startFollow(this.cameraTarget, true, 0.12, 0.12);
@@ -41,10 +47,22 @@ export class PrototypeScene extends Phaser.Scene {
       fontSize: "18px",
     }).setScrollFactor(0);
 
+    this.lapText = this.add.text(20, 68, `Lap 1 / ${this.totalLaps}`, {
+      color: "#f5f1e8",
+      fontFamily: "Trebuchet MS, sans-serif",
+      fontSize: "18px",
+    }).setScrollFactor(0);
+
+    this.timerText = this.add.text(20, 92, "Time 00:00.00", {
+      color: "#f5f1e8",
+      fontFamily: "Trebuchet MS, sans-serif",
+      fontSize: "18px",
+    }).setScrollFactor(0);
+
     this.helpText = this.add.text(
       20,
-      76,
-      "Practice track: follow the tan road. Camera follows the car.",
+      120,
+      "Press Space to start. Then cross START after the far checkpoint to count the lap.",
       {
         color: "#f5f1e8",
         fontFamily: "Trebuchet MS, sans-serif",
@@ -54,26 +72,49 @@ export class PrototypeScene extends Phaser.Scene {
 
     this.controlsText = this.add.text(
       20,
-      104,
-      "Controls: Up accelerate, Down brake/reverse, Left/Right steer",
+      148,
+      "Controls: Space start, Up accelerate, Down brake/reverse, Left/Right steer, R restart",
       {
         color: "#f5f1e8",
         fontFamily: "Trebuchet MS, sans-serif",
         fontSize: "18px",
       },
     ).setScrollFactor(0);
+
+    this.statusText = this.add.text(20, 176, "Press Space to begin the race.", {
+      color: "#f3c969",
+      fontFamily: "Trebuchet MS, sans-serif",
+      fontSize: "18px",
+    }).setScrollFactor(0);
   }
 
   update(_, delta) {
     const dt = Math.min(delta / 1000, 0.033);
 
-    this.car.update(dt, this.controls);
-    this.car.keepInBounds(this.worldWidth, this.worldHeight);
+    if (Phaser.Input.Keyboard.JustDown(this.restartKey)) {
+      this.scene.restart();
+      return;
+    }
 
-    if (!this.isOnRoad(this.car.sprite.x, this.car.sprite.y)) {
-      this.car.bounceToPreviousPosition();
-    } else if (this.isOnShoulder(this.car.sprite.x, this.car.sprite.y)) {
-      this.car.applySurfaceDrag(90 * dt);
+    if (!this.raceStarted && Phaser.Input.Keyboard.JustDown(this.startKey)) {
+      this.raceStarted = true;
+      this.statusText.setText("Race started. Hit the far checkpoint, then cross START.");
+    }
+
+    if (this.raceStarted && !this.raceFinished) {
+      this.elapsedMs += delta;
+      this.car.update(dt, this.controls);
+      this.car.keepInBounds(this.worldWidth, this.worldHeight);
+
+      if (!this.isOnRoad(this.car.sprite.x, this.car.sprite.y)) {
+        this.car.bounceToPreviousPosition();
+      } else if (this.isOnShoulder(this.car.sprite.x, this.car.sprite.y)) {
+        this.car.applySurfaceDrag(90 * dt);
+      }
+
+      this.updateRaceProgress();
+    } else {
+      this.car.applySurfaceDrag(320 * dt);
     }
 
     const speedRatio = Math.min(Math.abs(this.car.speed) / this.car.maxForwardSpeed, 1);
@@ -82,6 +123,64 @@ export class PrototypeScene extends Phaser.Scene {
     this.cameraTarget.y = this.car.sprite.y - Math.cos(this.car.rotation) * lookAheadDistance;
 
     this.speedText.setText(`${Math.round(this.car.speed)} px/s`);
+    const displayedLap = this.raceFinished
+      ? this.totalLaps
+      : Math.min(this.completedLaps + 1, this.totalLaps);
+    this.lapText.setText(`Lap ${displayedLap} / ${this.totalLaps}`);
+    this.timerText.setText(`Time ${this.formatTime(this.elapsedMs)}`);
+  }
+
+  initializeRaceState() {
+    this.completedLaps = 0;
+    this.elapsedMs = 0;
+    this.raceStarted = false;
+    this.raceFinished = false;
+    this.hasCheckpoint = false;
+    this.wasInsideCheckpoint = false;
+    this.wasInsideFinishLine = true;
+  }
+
+  updateRaceProgress() {
+    const carBounds = this.car.getBounds();
+    const insideCheckpoint = Phaser.Geom.Intersects.RectangleToRectangle(carBounds, this.checkpoint);
+    const insideFinishLine = Phaser.Geom.Intersects.RectangleToRectangle(carBounds, this.finishLine);
+
+    if (insideCheckpoint && !this.wasInsideCheckpoint) {
+      this.hasCheckpoint = true;
+      this.statusText.setText("Checkpoint hit. Return to START to complete the lap.");
+    }
+
+    if (insideFinishLine && !this.wasInsideFinishLine && this.hasCheckpoint) {
+      this.completeLap();
+    } else if (insideFinishLine && !this.wasInsideFinishLine && !this.hasCheckpoint) {
+      this.statusText.setText("Lap will count only after the far checkpoint.");
+    }
+
+    this.wasInsideCheckpoint = insideCheckpoint;
+    this.wasInsideFinishLine = insideFinishLine;
+  }
+
+  completeLap() {
+    this.completedLaps += 1;
+
+    if (this.completedLaps >= this.totalLaps) {
+      this.raceFinished = true;
+      this.hasCheckpoint = false;
+      this.statusText.setText(`Finished in ${this.formatTime(this.elapsedMs)}. Press R to restart.`);
+      return;
+    }
+
+    this.hasCheckpoint = false;
+    this.statusText.setText(`Lap ${this.completedLaps + 1}. Hit the far checkpoint, then cross START.`);
+  }
+
+  formatTime(elapsedMs) {
+    const totalCentiseconds = Math.floor(elapsedMs / 10);
+    const minutes = Math.floor(totalCentiseconds / 6000);
+    const seconds = Math.floor((totalCentiseconds % 6000) / 100);
+    const centiseconds = totalCentiseconds % 100;
+
+    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.${String(centiseconds).padStart(2, "0")}`;
   }
 
   isOnRoad(x, y) {
@@ -129,12 +228,19 @@ export class PrototypeScene extends Phaser.Scene {
     graphics.lineStyle(6, 0xf7e6a6, 0.9);
     graphics.strokeRect(300, 260, 1600, 880);
 
-    const spawnMarker = this.add.graphics();
-    spawnMarker.fillStyle(0xffffff, 1);
-    spawnMarker.fillRect(314, 260, 72, 10);
-    spawnMarker.fillStyle(0x111111, 1);
-    spawnMarker.fillRect(314, 270, 18, 10);
-    spawnMarker.fillRect(350, 270, 18, 10);
+    const startLine = this.add.graphics();
+    const tileSize = 8;
+    const cols = 4;
+    const rows = 11;
+    const startX = 402;
+    const startY = 236;
+    for (let row = 0; row < rows; row += 1) {
+      for (let col = 0; col < cols; col += 1) {
+        const isLight = (row + col) % 2 === 0;
+        startLine.fillStyle(isLight ? 0xffffff : 0x111111, 1);
+        startLine.fillRect(startX + col * tileSize, startY + row * tileSize, tileSize, tileSize);
+      }
+    }
 
     const labelStyle = {
       color: "#f5f1e8",
@@ -145,10 +251,15 @@ export class PrototypeScene extends Phaser.Scene {
     this.add.text(320, 226, "START", labelStyle);
     this.add.text(1010, 650, "INFIELD", labelStyle);
     this.add.text(1600, 1210, "Practice loop", labelStyle);
+    this.add.text(1774, 642, "CHECK", labelStyle);
 
     for (let i = 0; i < 14; i += 1) {
       const cone = this.add.circle(520 + i * 70, 1088, 7, 0xf08a24);
       cone.setStrokeStyle(2, 0x5d3410);
     }
+
+    const checkpointMarker = this.add.graphics();
+    checkpointMarker.lineStyle(4, 0x8ed1ff, 0.9);
+    checkpointMarker.strokeRectShape(this.checkpoint);
   }
 }
