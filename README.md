@@ -8,6 +8,8 @@ The repo is scaffolded for `Vite + Phaser` with a toy driving loop:
 - one Phaser scene
 - one controllable car
 - arrow-key driving
+- a larger practice track
+- camera follow
 - game code isolated from the app shell for an easier future move to Next.js
 
 Controls:
