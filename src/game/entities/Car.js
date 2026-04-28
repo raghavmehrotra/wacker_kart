@@ -21,9 +21,12 @@ export class Car {
     this.braking = 380;
     this.drag = 180;
     this.steeringRate = 2.6;
+    this.previousPosition = new Phaser.Math.Vector2(x, y);
   }
 
   update(dt, controls) {
+    this.previousPosition.set(this.sprite.x, this.sprite.y);
+
     if (controls.up.isDown) {
       this.speed += this.acceleration * dt;
     } else if (controls.down.isDown) {
@@ -58,6 +61,16 @@ export class Car {
     this.sprite.x += this.velocity.x;
     this.sprite.y += this.velocity.y;
     this.sprite.rotation = this.rotation;
+  }
+
+  bounceToPreviousPosition() {
+    this.sprite.x = this.previousPosition.x;
+    this.sprite.y = this.previousPosition.y;
+    this.speed *= -0.2;
+  }
+
+  applySurfaceDrag(amount) {
+    this.speed = this.applyDrag(this.speed, amount);
   }
 
   keepInBounds(width, height) {
