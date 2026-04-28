@@ -15,8 +15,9 @@ export class PrototypeScene extends Phaser.Scene {
     this.southboundLine = [
       new Phaser.Math.Vector2(1450, 620),
       new Phaser.Math.Vector2(1510, 1120),
-      new Phaser.Math.Vector2(1605, 1650),
-      new Phaser.Math.Vector2(1490, 2280),
+      new Phaser.Math.Vector2(1820, 1650),
+      new Phaser.Math.Vector2(1710, 1960),
+      new Phaser.Math.Vector2(1460, 2280),
       new Phaser.Math.Vector2(1590, 2860),
       new Phaser.Math.Vector2(1410, 3220),
     ];
@@ -33,8 +34,9 @@ export class PrototypeScene extends Phaser.Scene {
     this.northboundLine = [
       new Phaser.Math.Vector2(960, 3220),
       new Phaser.Math.Vector2(900, 2830),
-      new Phaser.Math.Vector2(790, 2220),
-      new Phaser.Math.Vector2(925, 1640),
+      new Phaser.Math.Vector2(760, 2440),
+      new Phaser.Math.Vector2(640, 2100),
+      new Phaser.Math.Vector2(860, 1640),
       new Phaser.Math.Vector2(840, 1120),
       new Phaser.Math.Vector2(930, 620),
     ];
@@ -59,6 +61,9 @@ export class PrototypeScene extends Phaser.Scene {
     this.finishLine = new Phaser.Geom.Rectangle(872, 690, 120, 28);
     this.southTurnaround = new Phaser.Geom.Rectangle(1010, 3390, 390, 170);
     this.spawnPoint = new Phaser.Math.Vector2(1450, 760);
+    this.treeObstacles = [
+      { x: 1490, y: 2860, radius: 38 },
+    ];
   }
 
   create() {
@@ -120,6 +125,11 @@ export class PrototypeScene extends Phaser.Scene {
         this.car.bounceToPreviousPosition();
       } else if (trackDistance > this.roadHalfWidth) {
         this.car.applySurfaceDrag(85 * dt);
+      }
+
+      if (this.hitTreeObstacle()) {
+        this.car.bounceToPreviousPosition();
+        this.car.speed = 0;
       }
 
       this.updateRaceProgress();
@@ -244,6 +254,19 @@ export class PrototypeScene extends Phaser.Scene {
     return minDistance;
   }
 
+  hitTreeObstacle() {
+    return this.treeObstacles.some((tree) => {
+      const obstacleBounds = new Phaser.Geom.Rectangle(
+        tree.x - tree.radius,
+        tree.y - tree.radius,
+        tree.radius * 2,
+        tree.radius * 2,
+      );
+
+      return Phaser.Geom.Intersects.RectangleToRectangle(this.car.getBounds(), obstacleBounds);
+    });
+  }
+
   configureHudCamera() {
     this.cameras.main.ignore(this.hudObjects);
 
@@ -344,8 +367,9 @@ export class PrototypeScene extends Phaser.Scene {
       [
         new Phaser.Math.Vector2(1195, 630),
         new Phaser.Math.Vector2(1230, 1110),
-        new Phaser.Math.Vector2(1195, 1650),
-        new Phaser.Math.Vector2(1210, 2260),
+        new Phaser.Math.Vector2(1230, 1500),
+        new Phaser.Math.Vector2(1390, 1770),
+        new Phaser.Math.Vector2(1170, 2280),
         new Phaser.Math.Vector2(1245, 2860),
         new Phaser.Math.Vector2(1180, 3220),
       ],
