@@ -76,57 +76,25 @@ export class PrototypeScene extends Phaser.Scene {
     this.cameras.main.setZoom(1);
     this.cameras.main.setRoundPixels(false);
 
-    this.add.text(20, 20, "Speed", {
+    this.lapText = this.add.text(20, 20, `Lap 1 / ${this.totalLaps}`, {
       color: "#f5f1e8",
       fontFamily: "Trebuchet MS, sans-serif",
       fontSize: "18px",
     }).setScrollFactor(0);
 
-    this.speedText = this.add.text(20, 44, "0 px/s", {
+    this.timerText = this.add.text(20, 44, "Time 00:00.00", {
       color: "#f5f1e8",
       fontFamily: "Trebuchet MS, sans-serif",
       fontSize: "18px",
     }).setScrollFactor(0);
 
-    this.lapText = this.add.text(20, 68, `Lap 1 / ${this.totalLaps}`, {
-      color: "#f5f1e8",
-      fontFamily: "Trebuchet MS, sans-serif",
-      fontSize: "18px",
-    }).setScrollFactor(0);
+    this.hudObjects = [
+      this.lapText,
+      this.timerText,
+    ];
 
-    this.timerText = this.add.text(20, 92, "Time 00:00.00", {
-      color: "#f5f1e8",
-      fontFamily: "Trebuchet MS, sans-serif",
-      fontSize: "18px",
-    }).setScrollFactor(0);
-
-    this.helpText = this.add.text(
-      20,
-      120,
-      "Press Space to start. Drive south to 50th, loop around, then return north to Navy Pier.",
-      {
-        color: "#f5f1e8",
-        fontFamily: "Trebuchet MS, sans-serif",
-        fontSize: "18px",
-      },
-    ).setScrollFactor(0);
-
-    this.controlsText = this.add.text(
-      20,
-      148,
-      "Controls: Space start, Up accelerate, Down brake/reverse, Left/Right steer, R restart",
-      {
-        color: "#f5f1e8",
-        fontFamily: "Trebuchet MS, sans-serif",
-        fontSize: "18px",
-      },
-    ).setScrollFactor(0);
-
-    this.statusText = this.add.text(20, 176, "Press Space to begin the Lake Shore Drive run.", {
-      color: "#f3c969",
-      fontFamily: "Trebuchet MS, sans-serif",
-      fontSize: "18px",
-    }).setScrollFactor(0);
+    this.configureHudCamera();
+    this.setStatusMessage("Press Space to begin the Lake Shore Drive run.");
   }
 
   update(_, delta) {
@@ -139,7 +107,7 @@ export class PrototypeScene extends Phaser.Scene {
 
     if (!this.raceStarted && Phaser.Input.Keyboard.JustDown(this.startKey)) {
       this.raceStarted = true;
-      this.statusText.setText("Race started. Reach 50th Street, then return north to Navy Pier.");
+      this.setStatusMessage("Race started. Reach 50th Street, then return north to Navy Pier.");
     }
 
     if (this.raceStarted && !this.raceFinished) {
@@ -171,7 +139,6 @@ export class PrototypeScene extends Phaser.Scene {
       1.75 * dt,
     );
 
-    this.speedText.setText(`${Math.round(this.car.speed)} px/s`);
     const displayedLap = this.raceFinished
       ? this.totalLaps
       : Math.min(this.completedLaps + 1, this.totalLaps);
@@ -199,13 +166,13 @@ export class PrototypeScene extends Phaser.Scene {
 
     if (insideSouthTurnaround && !this.wasInsideSouthTurnaround) {
       this.reachedSouthTurnaround = true;
-      this.statusText.setText("50th Street reached. Now return north and cross the Navy Pier line.");
+      this.setStatusMessage("50th Street reached. Now return north and cross the Navy Pier line.");
     }
 
     if (insideFinishLine && !this.wasInsideFinishLine && this.reachedSouthTurnaround) {
       this.completeLap();
     } else if (insideFinishLine && !this.wasInsideFinishLine && !this.reachedSouthTurnaround) {
-      this.statusText.setText("Go south to 50th Street before the Navy Pier line can count.");
+      this.setStatusMessage("Go south to 50th Street before the Navy Pier line can count.");
     }
 
     this.wasInsideSouthTurnaround = insideSouthTurnaround;
@@ -218,12 +185,19 @@ export class PrototypeScene extends Phaser.Scene {
     if (this.completedLaps >= this.totalLaps) {
       this.raceFinished = true;
       this.reachedSouthTurnaround = false;
-      this.statusText.setText(`Finished in ${this.formatTime(this.elapsedMs)}. Press R to restart.`);
+      this.setStatusMessage(`Finished in ${this.formatTime(this.elapsedMs)}. Press R to restart.`);
       return;
     }
 
     this.reachedSouthTurnaround = false;
-    this.statusText.setText(`Lap ${this.completedLaps + 1}. Head south again and loop back north.`);
+    this.setStatusMessage(`Lap ${this.completedLaps + 1}. Head south again and loop back north.`);
+  }
+
+  setStatusMessage(message) {
+    const statusNode = document.getElementById("race-status");
+    if (statusNode) {
+      statusNode.textContent = message;
+    }
   }
 
   formatTime(elapsedMs) {
@@ -268,6 +242,16 @@ export class PrototypeScene extends Phaser.Scene {
     }
 
     return minDistance;
+  }
+
+  configureHudCamera() {
+    this.cameras.main.ignore(this.hudObjects);
+
+    this.uiCamera = this.cameras.add(0, 0, this.scale.width, this.scale.height, false, "ui-camera");
+    this.uiCamera.setScroll(0, 0);
+    this.uiCamera.setZoom(1);
+    this.uiCamera.setRotation(0);
+    this.uiCamera.ignore(this.children.list.filter((child) => !this.hudObjects.includes(child)));
   }
 
   drawPolylineStroke(graphics, points, width, color, alpha = 1) {
