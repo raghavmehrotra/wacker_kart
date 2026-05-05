@@ -121,8 +121,6 @@ export class TrackManager {
     const startTurnMarker = this.scene.add.graphics();
     startTurnMarker.lineStyle(4, 0x9fe8ff, 0.9);
     startTurnMarker.strokeRectShape(southTurnaround);
-
-    return malortPickups;
   }
 
   applyTrackSurface(car, dt) {

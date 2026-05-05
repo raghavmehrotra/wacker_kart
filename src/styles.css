@@ -44,6 +44,32 @@ body {
   margin: 0.3rem 0;
 }
 
+.track-picker {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.6rem;
+}
+
+.track-picker label {
+  font-size: 0.95rem;
+  color: rgba(245, 241, 232, 0.82);
+}
+
+.track-select {
+  min-width: 14rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  background: rgba(20, 29, 37, 0.92);
+  color: #f5f1e8;
+  font: inherit;
+}
+
+.track-name {
+  color: #f3c969;
+}
+
 .hint {
   color: #f3c969;
 }
@@ -67,4 +93,16 @@ body {
   width: 100%;
   height: auto;
   border-radius: 12px;
+}
+
+@media (max-width: 700px) {
+  .track-picker {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .track-select {
+    min-width: 0;
+    width: 100%;
+  }
 }
