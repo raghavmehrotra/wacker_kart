@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { Car } from "../entities/Car.js";
-import { createTrackById, getSelectedTrackId } from "../config/createTrackCatalog.js";
+import { getTrackById, getSelectedTrackId } from "../config/createTrackCatalog.js";
 import { HudManager } from "../managers/HudManager.js";
 import { ItemManager } from "../managers/ItemManager.js";
 import { RaceManager } from "../managers/RaceManager.js";
@@ -9,51 +9,58 @@ import { TrackManager } from "../managers/TrackManager.js";
 export class PrototypeScene extends Phaser.Scene {
   constructor() {
     super("prototype-scene");
-    this.trackId = "lake-shore-drive";
   }
 
   init() {
-    this.trackId = getSelectedTrackId();
-    this.track = createTrackById(this.trackId);
+    this.trackMeta = getTrackById(getSelectedTrackId());
+  }
+
+  preload() {
+    this.load.tilemapTiledJSON(this.trackMeta.id, this.trackMeta.mapPath);
   }
 
   create() {
-    this.trackManager = new TrackManager(this, this.track);
+    const tilemap = this.make.tilemap({ key: this.trackMeta.id });
+    this.tilemap = tilemap;
+
+    this.trackManager = new TrackManager(this, tilemap, this.trackMeta.id);
     this.trackManager.drawWorld();
 
+    const spawn = this.trackManager.spawnPoints[0] ?? { x: 1200, y: 760 };
+
     this.controls = this.input.keyboard.createCursorKeys();
-    this.car = new Car(this, this.track.spawnPoint.x, this.track.spawnPoint.y, Math.PI);
+    this.car = new Car(this, spawn.x, spawn.y, Math.PI);
     this.cameraTarget = this.add.zone(this.car.sprite.x, this.car.sprite.y, 1, 1);
     this.restartKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
     this.startKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     this.useItemKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
 
     this.raceManager = new RaceManager({
-      totalLaps: this.track.totalLaps,
-      finishLine: this.track.finishLine,
-      southTurnaround: this.track.southTurnaround,
-      finishName: this.track.finishName,
-      turnaroundName: this.track.turnaroundName,
-      formatTime: (elapsedMs) => this.formatTime(elapsedMs),
-      onStatusChange: (message) => this.setStatusMessage(message),
+      totalLaps: this.trackMeta.totalLaps,
+      finishLine: this.trackManager.finishLine,
+      southTurnaround: this.trackManager.turnaround,
+      finishName: this.trackMeta.finishName,
+      turnaroundName: this.trackMeta.turnaroundName,
+      formatTime: (ms) => this.formatTime(ms),
+      onStatusChange: (msg) => this.setStatusMessage(msg),
     });
 
     this.itemManager = new ItemManager(this, {
-      pickups: this.track.malortPickups,
-      malortPickupDurationMs: this.track.malortPickupDurationMs,
-      onStatusChange: (message) => this.setStatusMessage(message),
+      pickups: this.trackManager.itemPickups,
+      malortPickupDurationMs: 5000,
+      onStatusChange: (msg) => this.setStatusMessage(msg),
     });
     this.itemManager.drawPickups();
     this.itemManager.reset(this.car);
 
-    this.hudManager = new HudManager(this, this.track.totalLaps);
+    this.hudManager = new HudManager(this, this.trackMeta.totalLaps);
 
-    this.cameras.main.setBounds(0, 0, this.track.worldWidth, this.track.worldHeight);
+    this.cameras.main.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
     this.cameras.main.startFollow(this.cameraTarget, true, 0.12, 0.12);
     this.cameras.main.setZoom(1);
     this.cameras.main.setRoundPixels(false);
     this.hudManager.configureCamera();
-    this.setStatusMessage(`Press Space to begin the ${this.track.name} run.`);
+    this.setStatusMessage(`Press Space to begin the ${this.trackMeta.name} run.`);
   }
 
   update(_, delta) {
@@ -71,7 +78,7 @@ export class PrototypeScene extends Phaser.Scene {
     if (this.raceManager.raceStarted && !this.raceManager.raceFinished) {
       this.raceManager.tick(delta);
       this.car.update(dt, this.controls);
-      this.car.keepInBounds(this.track.worldWidth, this.track.worldHeight);
+      this.car.keepInBounds(this.tilemap.widthInPixels, this.tilemap.heightInPixels);
       this.trackManager.applyTrackSurface(this.car, dt);
 
       if (Phaser.Input.Keyboard.JustDown(this.useItemKey)) {
@@ -108,23 +115,20 @@ export class PrototypeScene extends Phaser.Scene {
       speed: this.car.speed,
       heldItemLabel: this.itemManager.getHeldItemLabel(),
       effectTimerLabel: this.itemManager.getEffectTimerLabel(),
-      formatTime: (elapsedMs) => this.formatTime(elapsedMs),
+      formatTime: (ms) => this.formatTime(ms),
     });
   }
 
   setStatusMessage(message) {
     const statusNode = document.getElementById("race-status");
-    if (statusNode) {
-      statusNode.textContent = message;
-    }
+    if (statusNode) statusNode.textContent = message;
   }
 
   formatTime(elapsedMs) {
-    const totalCentiseconds = Math.floor(elapsedMs / 10);
-    const minutes = Math.floor(totalCentiseconds / 6000);
-    const seconds = Math.floor((totalCentiseconds % 6000) / 100);
-    const centiseconds = totalCentiseconds % 100;
-
+    const totalCs = Math.floor(elapsedMs / 10);
+    const minutes = Math.floor(totalCs / 6000);
+    const seconds = Math.floor((totalCs % 6000) / 100);
+    const centiseconds = totalCs % 100;
     return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.${String(centiseconds).padStart(2, "0")}`;
   }
 }

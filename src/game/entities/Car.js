@@ -9,6 +9,7 @@ export class Car {
     const frontMarker = scene.add.circle(0, -18, 4, 0xffffff);
 
     this.sprite = scene.add.container(x, y, [body, windshield, frontMarker]);
+    this.sprite.setDepth(4);
     this.width = 28;
     this.height = 44;
 
