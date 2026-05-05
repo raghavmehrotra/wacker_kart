@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { Car } from "../entities/Car.js";
-import { createPrototypeTrack } from "../config/createPrototypeTrack.js";
+import { createTrackById, getSelectedTrackId } from "../config/createTrackCatalog.js";
 import { HudManager } from "../managers/HudManager.js";
 import { ItemManager } from "../managers/ItemManager.js";
 import { RaceManager } from "../managers/RaceManager.js";
@@ -9,7 +9,12 @@ import { TrackManager } from "../managers/TrackManager.js";
 export class PrototypeScene extends Phaser.Scene {
   constructor() {
     super("prototype-scene");
-    this.track = createPrototypeTrack();
+    this.trackId = "lake-shore-drive";
+  }
+
+  init() {
+    this.trackId = getSelectedTrackId();
+    this.track = createTrackById(this.trackId);
   }
 
   create() {
@@ -21,11 +26,14 @@ export class PrototypeScene extends Phaser.Scene {
     this.cameraTarget = this.add.zone(this.car.sprite.x, this.car.sprite.y, 1, 1);
     this.restartKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
     this.startKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+    this.useItemKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
 
     this.raceManager = new RaceManager({
       totalLaps: this.track.totalLaps,
       finishLine: this.track.finishLine,
       southTurnaround: this.track.southTurnaround,
+      finishName: this.track.finishName,
+      turnaroundName: this.track.turnaroundName,
       formatTime: (elapsedMs) => this.formatTime(elapsedMs),
       onStatusChange: (message) => this.setStatusMessage(message),
     });
@@ -45,7 +53,7 @@ export class PrototypeScene extends Phaser.Scene {
     this.cameras.main.setZoom(1);
     this.cameras.main.setRoundPixels(false);
     this.hudManager.configureCamera();
-    this.setStatusMessage("Press Space to begin the Lake Shore Drive run.");
+    this.setStatusMessage(`Press Space to begin the ${this.track.name} run.`);
   }
 
   update(_, delta) {
@@ -65,6 +73,10 @@ export class PrototypeScene extends Phaser.Scene {
       this.car.update(dt, this.controls);
       this.car.keepInBounds(this.track.worldWidth, this.track.worldHeight);
       this.trackManager.applyTrackSurface(this.car, dt);
+
+      if (Phaser.Input.Keyboard.JustDown(this.useItemKey)) {
+        this.itemManager.tryUseHeldItem(this.car);
+      }
 
       if (this.trackManager.hitTreeObstacle(this.car.getBounds())) {
         this.car.bounceToPreviousPosition();
@@ -94,6 +106,8 @@ export class PrototypeScene extends Phaser.Scene {
       displayedLap: this.raceManager.getDisplayedLap(),
       elapsedMs: this.raceManager.elapsedMs,
       speed: this.car.speed,
+      heldItemLabel: this.itemManager.getHeldItemLabel(),
+      effectTimerLabel: this.itemManager.getEffectTimerLabel(),
       formatTime: (elapsedMs) => this.formatTime(elapsedMs),
     });
   }

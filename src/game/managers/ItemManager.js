@@ -16,6 +16,7 @@ export class ItemManager {
     }));
     this.malortPickupDurationMs = malortPickupDurationMs;
     this.onStatusChange = onStatusChange;
+    this.heldItem = null;
     this.malortEffectRemainingMs = 0;
   }
 
@@ -48,6 +49,7 @@ export class ItemManager {
   }
 
   reset(car) {
+    this.heldItem = null;
     this.malortEffectRemainingMs = 0;
     car.setEffectMultipliers(DEFAULT_EFFECT_MULTIPLIERS);
 
@@ -60,6 +62,21 @@ export class ItemManager {
   update(delta, car) {
     this.updateMalortEffect(delta, car);
     this.checkMalortPickupCollisions(car);
+  }
+
+  tryUseHeldItem(car) {
+    if (!this.heldItem) {
+      this.onStatusChange("No item held. Drive through a pickup first.");
+      return false;
+    }
+
+    if (this.heldItem === "malort-shot") {
+      this.activateMalortShot(car);
+      this.heldItem = null;
+      return true;
+    }
+
+    return false;
   }
 
   updateMalortEffect(delta, car) {
@@ -93,11 +110,25 @@ export class ItemManager {
         continue;
       }
 
+      if (!this.collectMalortShot()) {
+        break;
+      }
+
       pickup.collected = true;
       pickup.sprite?.setVisible(false);
-      this.activateMalortShot(car);
       break;
     }
+  }
+
+  collectMalortShot() {
+    if (this.heldItem) {
+      this.onStatusChange("Item slot already full. Use your held item first.");
+      return false;
+    }
+
+    this.heldItem = "malort-shot";
+    this.onStatusChange("Picked up a Malort shot. Press X to use it.");
+    return true;
   }
 
   activateMalortShot(car) {
@@ -119,5 +150,21 @@ export class ItemManager {
     );
 
     this.onStatusChange("Malort shot active: speed up 30%, steering down 75% for 5 seconds.");
+  }
+
+  getHeldItemLabel() {
+    if (this.heldItem === "malort-shot") {
+      return "Malort";
+    }
+
+    return "Empty";
+  }
+
+  getEffectTimerLabel() {
+    if (this.malortEffectRemainingMs <= 0) {
+      return "Ready";
+    }
+
+    return `${(this.malortEffectRemainingMs / 1000).toFixed(1)}s`;
   }
 }

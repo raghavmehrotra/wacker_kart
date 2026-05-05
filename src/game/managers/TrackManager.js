@@ -7,7 +7,18 @@ export class TrackManager {
   }
 
   drawWorld() {
-    const { worldWidth, worldHeight, trackPolylines, shoulderHalfWidth, roadHalfWidth, malortPickups, southTurnaround } = this.track;
+    const {
+      worldWidth,
+      worldHeight,
+      trackPolylines,
+      shoulderHalfWidth,
+      roadHalfWidth,
+      finishLine,
+      southTurnaround,
+      laneMarkPoints,
+      mapLabels,
+      sceneryTrees,
+    } = this.track;
 
     const land = this.scene.add.graphics();
     land.fillStyle(0x5f9151, 1);
@@ -66,21 +77,9 @@ export class TrackManager {
 
     const laneMarks = this.scene.add.graphics();
     laneMarks.lineStyle(3, 0xffffff, 0.7);
-    laneMarks.strokePoints(
-      [
-        new Phaser.Math.Vector2(1195, 630),
-        new Phaser.Math.Vector2(1230, 1110),
-        new Phaser.Math.Vector2(1230, 1500),
-        new Phaser.Math.Vector2(1390, 1770),
-        new Phaser.Math.Vector2(1170, 2280),
-        new Phaser.Math.Vector2(1245, 2860),
-        new Phaser.Math.Vector2(1180, 3220),
-      ],
-      false,
-      false,
-    );
+    laneMarks.strokePoints(laneMarkPoints, false, false);
 
-    this.drawCheckerboardLine(872, 690, 15, 4, 8);
+    this.drawCheckerboardLine(finishLine.x, finishLine.y, 15, 4, 8);
 
     const labelStyle = {
       color: "#f5f1e8",
@@ -88,10 +87,9 @@ export class TrackManager {
       fontSize: "18px",
     };
 
-    this.scene.add.text(820, 648, "NAVY PIER", labelStyle);
-    this.scene.add.text(1515, 700, "Southbound", labelStyle);
-    this.scene.add.text(700, 700, "Northbound", labelStyle);
-    this.scene.add.text(1110, 3338, "50TH ST TURN", labelStyle);
+    for (const label of mapLabels) {
+      this.scene.add.text(label.x, label.y, label.text, labelStyle);
+    }
 
     const skyline = this.scene.add.graphics();
     skyline.fillStyle(0x4a5a6d, 0.95);
@@ -103,21 +101,7 @@ export class TrackManager {
     skyline.fillRect(825, 190, 100, 190);
     skyline.fillRect(960, 130, 75, 250);
 
-    for (const [x, y, r] of [
-      [1140, 580, 26],
-      [1240, 650, 22],
-      [860, 1090, 20],
-      [980, 1210, 24],
-      [770, 1470, 22],
-      [1180, 1460, 18],
-      [1520, 1460, 20],
-      [890, 2140, 24],
-      [1040, 2330, 22],
-      [760, 3180, 20],
-      [920, 3350, 22],
-      [1370, 3140, 24],
-      [1490, 2860, 18],
-    ]) {
+    for (const [x, y, r] of sceneryTrees) {
       this.drawTreeCluster(x, y, r);
     }
 

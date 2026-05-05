@@ -1,10 +1,20 @@
 import Phaser from "phaser";
 
 export class RaceManager {
-  constructor({ totalLaps, finishLine, southTurnaround, formatTime, onStatusChange }) {
+  constructor({
+    totalLaps,
+    finishLine,
+    southTurnaround,
+    finishName,
+    turnaroundName,
+    formatTime,
+    onStatusChange,
+  }) {
     this.totalLaps = totalLaps;
     this.finishLine = finishLine;
     this.southTurnaround = southTurnaround;
+    this.finishName = finishName;
+    this.turnaroundName = turnaroundName;
     this.formatTime = formatTime;
     this.onStatusChange = onStatusChange;
     this.reset();
@@ -26,7 +36,9 @@ export class RaceManager {
     }
 
     this.raceStarted = true;
-    this.onStatusChange("Race started. Reach 50th Street, then return north to Navy Pier.");
+    this.onStatusChange(
+      `Race started. Reach ${this.turnaroundName}, then return to ${this.finishName}.`,
+    );
   }
 
   tick(delta) {
@@ -46,13 +58,17 @@ export class RaceManager {
 
     if (insideSouthTurnaround && !this.wasInsideSouthTurnaround) {
       this.reachedSouthTurnaround = true;
-      this.onStatusChange("50th Street reached. Now return north and cross the Navy Pier line.");
+      this.onStatusChange(
+        `${this.turnaroundName} reached. Now return to ${this.finishName} and cross the line.`,
+      );
     }
 
     if (insideFinishLine && !this.wasInsideFinishLine && this.reachedSouthTurnaround) {
       this.completeLap();
     } else if (insideFinishLine && !this.wasInsideFinishLine && !this.reachedSouthTurnaround) {
-      this.onStatusChange("Go south to 50th Street before the Navy Pier line can count.");
+      this.onStatusChange(
+        `Reach ${this.turnaroundName} before the ${this.finishName} line can count.`,
+      );
     }
 
     this.wasInsideSouthTurnaround = insideSouthTurnaround;

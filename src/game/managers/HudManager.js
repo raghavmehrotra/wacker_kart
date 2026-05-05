@@ -21,10 +21,24 @@ export class HudManager {
       fontSize: "18px",
     }).setScrollFactor(0);
 
+    this.itemText = scene.add.text(20, 92, "Item Empty", {
+      color: "#f5f1e8",
+      fontFamily: "Trebuchet MS, sans-serif",
+      fontSize: "18px",
+    }).setScrollFactor(0);
+
+    this.effectText = scene.add.text(20, 116, "Boost Ready", {
+      color: "#f3c969",
+      fontFamily: "Trebuchet MS, sans-serif",
+      fontSize: "18px",
+    }).setScrollFactor(0);
+
     this.hudObjects = [
       this.lapText,
       this.timerText,
       this.speedText,
+      this.itemText,
+      this.effectText,
     ];
   }
 
@@ -38,9 +52,11 @@ export class HudManager {
     uiCamera.ignore(this.scene.children.list.filter((child) => !this.hudObjects.includes(child)));
   }
 
-  render({ displayedLap, elapsedMs, speed, formatTime }) {
+  render({ displayedLap, elapsedMs, speed, heldItemLabel, effectTimerLabel, formatTime }) {
     this.lapText.setText(`Lap ${displayedLap} / ${this.totalLaps}`);
     this.timerText.setText(`Time ${formatTime(elapsedMs)}`);
     this.speedText.setText(`Speed ${Math.round(Math.abs(speed))}`);
+    this.itemText.setText(`Item ${heldItemLabel}`);
+    this.effectText.setText(`Boost ${effectTimerLabel}`);
   }
 }
