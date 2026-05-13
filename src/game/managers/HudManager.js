@@ -27,7 +27,7 @@ export class HudManager {
       fontSize: "18px",
     }).setScrollFactor(0);
 
-    this.effectText = scene.add.text(20, 116, "Boost Ready", {
+    this.effectText = scene.add.text(20, 116, "Effect: Ready", {
       color: "#f3c969",
       fontFamily: "Trebuchet MS, sans-serif",
       fontSize: "18px",
@@ -57,6 +57,6 @@ export class HudManager {
     this.timerText.setText(`Time ${formatTime(elapsedMs)}`);
     this.speedText.setText(`Speed ${Math.round(Math.abs(speed))}`);
     this.itemText.setText(`Item ${heldItemLabel}`);
-    this.effectText.setText(`Boost ${effectTimerLabel}`);
+    this.effectText.setText(effectTimerLabel);
   }
 }

@@ -16,7 +16,6 @@ const ITEM_REGISTRY = {
     pickupMsg: "Picked up a deep dish pizza. Press X to drop it behind you.",
     useMsg: "Pizza dropped! Anyone who drives through it slows down.",
     isHazard: true,
-    hazardDuration: 8000,
     hazardSlowDuration: 2000,
     hazardMultipliers: { speedMultiplier: 0.5, accelerationMultiplier: 1, steeringMultiplier: 0.8 },
   },
@@ -108,12 +107,12 @@ export class ItemManager {
 
   getEffectTimerLabel() {
     if (this.pizzaSlowRemainingMs > 0) {
-      return `Slowed ${(this.pizzaSlowRemainingMs / 1000).toFixed(1)}s`;
+      return `Effect: Slowed ${(this.pizzaSlowRemainingMs / 1000).toFixed(1)}s`;
     }
     if (this.effectRemainingMs > 0) {
-      return `${(this.effectRemainingMs / 1000).toFixed(1)}s`;
+      return `Effect: ${(this.effectRemainingMs / 1000).toFixed(1)}s`;
     }
-    return "Ready";
+    return "Effect: Ready";
   }
 
   // ── Private ────────────────────────────────────────────────────────────────
@@ -177,13 +176,8 @@ export class ItemManager {
     const behindX = car.sprite.x - Math.sin(car.rotation) * 55;
     const behindY = car.sprite.y + Math.cos(car.rotation) * 55;
     const sprite = this._makePizzaSprite(behindX, behindY);
-    const def = ITEM_REGISTRY["deep-dish-pizza"];
-    this.activeHazards.push({
-      x: behindX, y: behindY, radius: 32,
-      expiresAt: this.scene.time.now + def.hazardDuration,
-      sprite,
-    });
-    this.onStatusChange(def.useMsg);
+    this.activeHazards.push({ x: behindX, y: behindY, radius: 32, sprite });
+    this.onStatusChange(ITEM_REGISTRY["deep-dish-pizza"].useMsg);
   }
 
   _makePizzaSprite(x, y) {
@@ -209,21 +203,13 @@ export class ItemManager {
   }
 
   _tickHazards(delta, car) {
-    const now = this.scene.time.now;
+    const carBounds = car.getBounds();
     this.activeHazards = this.activeHazards.filter((h) => {
-      if (now >= h.expiresAt) {
-        h.sprite?.destroy();
-        return false;
-      }
-      // Fade out last 1.5s
-      const remaining = h.expiresAt - now;
-      if (remaining < 1500) h.sprite?.setAlpha(remaining / 1500 * 0.88);
-
-      // Overlap check
-      const carBounds = car.getBounds();
       const hb = new Phaser.Geom.Rectangle(h.x - h.radius, h.y - h.radius, h.radius * 2, h.radius * 2);
       if (Phaser.Geom.Intersects.RectangleToRectangle(carBounds, hb)) {
         this._applyPizzaSlow(car);
+        h.sprite?.destroy();
+        return false;
       }
       return true;
     });
