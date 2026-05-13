@@ -74,6 +74,205 @@ body {
   color: #f3c969;
 }
 
+/* ── Garage UI ──────────────────────────────────────────────────────────────── */
+
+.garage {
+  margin: 0.75rem 0 0.25rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  align-items: center;
+}
+
+.garage-label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(245, 241, 232, 0.5);
+  margin-bottom: 0.35rem;
+}
+
+.garage-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.player-name-input {
+  background: rgba(20, 29, 37, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  color: #f5f1e8;
+  font: inherit;
+  font-size: 0.95rem;
+  padding: 0.35rem 0.6rem;
+  width: 160px;
+  outline: none;
+}
+
+.player-name-input:focus {
+  border-color: rgba(243, 201, 105, 0.6);
+}
+
+.color-swatches {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.color-swatch {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: transform 0.12s, border-color 0.12s;
+}
+
+.color-swatch:hover {
+  transform: scale(1.15);
+}
+
+.color-swatch.selected {
+  border-color: #ffffff;
+  transform: scale(1.15);
+}
+
+.avatar-options {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.avatar-option {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: transform 0.12s, border-color 0.12s;
+  padding: 0;
+  background: none;
+  overflow: hidden;
+}
+
+.avatar-option img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 50%;
+}
+
+.avatar-option:hover {
+  transform: scale(1.12);
+}
+
+.avatar-option.selected {
+  border-color: #f3c969;
+  transform: scale(1.12);
+}
+
+/* ── Lobby layout ───────────────────────────────────────────────────────────── */
+
+#lobby {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem 1.5rem;
+}
+
+.lobby-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.lobby-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  align-items: flex-start;
+}
+
+.track-description {
+  color: rgba(245, 241, 232, 0.6);
+  font-size: 0.88rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.start-btn {
+  align-self: stretch;
+  padding: 0.75rem 2rem;
+  background: #c24b3f;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font: inherit;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.start-btn:hover {
+  background: #d9564a;
+  transform: translateY(-1px);
+}
+
+.start-btn:active {
+  transform: translateY(0);
+}
+
+/* ── Game view layout ───────────────────────────────────────────────────────── */
+
+#game-view {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  gap: 0.75rem;
+}
+
+.game-topbar {
+  width: min(960px, 100%);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.back-btn {
+  padding: 0.4rem 0.9rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: #f5f1e8;
+  font: inherit;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: background 0.12s;
+  white-space: nowrap;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.race-status-bar {
+  flex: 1;
+  font-size: 0.9rem;
+  color: #f3c969;
+  text-align: center;
+  min-height: 1.2em;
+}
+
 .game-shell {
   width: min(960px, 100%);
   padding: 0.75rem;
