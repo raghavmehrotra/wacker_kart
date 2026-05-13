@@ -3,7 +3,7 @@ import Phaser from "phaser";
 export class Car {
   constructor(scene, x, y, initialRotation = 0, options = {}) {
     this.scene = scene;
-    const { kartTextureKey } = options;
+    const { kartTextureKey, avatarTextureKey } = options;
 
     let children;
     if (kartTextureKey && scene.textures.exists(kartTextureKey)) {
@@ -16,6 +16,13 @@ export class Car {
       const windshield = scene.add.rectangle(0, -12, 20, 10, 0xf2d16b);
       const frontMarker = scene.add.circle(0, -18, 4, 0xffffff);
       children = [body, windshield, frontMarker];
+    }
+
+    // Avatar badge floating above the kart
+    if (avatarTextureKey && scene.textures.exists(avatarTextureKey)) {
+      const badge = scene.add.image(0, -38, avatarTextureKey);
+      badge.setDisplaySize(22, 22);
+      children.push(badge);
     }
 
     this.sprite = scene.add.container(x, y, children);

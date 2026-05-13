@@ -7,29 +7,21 @@ import { getAvatarDataUrls } from "./game/sprites/avatarFactory.js";
 const app = document.querySelector("#app");
 const trackOptions = getTrackOptions();
 let selectedTrackId = trackOptions[0].id;
-let game;
+let game = null;
 let nameDebounce = null;
 
 function getSelectedTrack() {
   return trackOptions.find((t) => t.id === selectedTrackId) ?? trackOptions[0];
 }
 
-function renderRouteCopy() {
-  const track = getSelectedTrack();
-  const routeNode = document.getElementById("route-description");
-  const titleNode = document.getElementById("selected-track-name");
-  if (routeNode) routeNode.textContent = track.routeDescription;
-  if (titleNode) titleNode.textContent = track.name;
-}
+// ── Lobby screen ──────────────────────────────────────────────────────────────
 
-function mountGame() {
-  setSelectedTrackId(selectedTrackId);
-  game?.destroy(true);
-  game = createGame("game-root");
-}
-
-function buildGarageHTML() {
+function buildLobbyHTML() {
   const avatarUrls = getAvatarDataUrls();
+
+  const trackOpts = trackOptions.map((t) =>
+    `<option value="${t.id}"${t.id === selectedTrackId ? " selected" : ""}>${t.name}</option>`,
+  ).join("");
 
   const swatches = KART_COLORS.map((c) => `
     <button
@@ -53,90 +45,119 @@ function buildGarageHTML() {
   `).join("");
 
   return `
-    <div class="garage" id="garage">
-      <div class="garage-group">
-        <div class="garage-label">Name</div>
-        <input
-          class="player-name-input"
-          id="player-name-input"
-          type="text"
-          maxlength="16"
-          value="${customization.playerName}"
-          spellcheck="false"
-        >
+    <div id="lobby">
+      <section class="panel lobby-panel">
+        <h1>Wacker Kart</h1>
+
+        <div class="lobby-row">
+          <div class="garage-group">
+            <div class="garage-label">Track</div>
+            <select id="track-select" class="track-select">
+              ${trackOpts}
+            </select>
+          </div>
+          <div class="garage-group">
+            <div class="garage-label">Name</div>
+            <input
+              class="player-name-input"
+              id="player-name-input"
+              type="text"
+              maxlength="16"
+              value="${customization.playerName}"
+              spellcheck="false"
+            >
+          </div>
+        </div>
+
+        <div class="lobby-row">
+          <div class="garage-group">
+            <div class="garage-label">Kart Colour</div>
+            <div class="color-swatches" id="color-swatches">${swatches}</div>
+          </div>
+          <div class="garage-group">
+            <div class="garage-label">Avatar</div>
+            <div class="avatar-options" id="avatar-options">${avatarBtns}</div>
+          </div>
+        </div>
+
+        <p id="track-description" class="track-description">${getSelectedTrack().routeDescription}</p>
+
+        <button id="start-btn" class="start-btn">Start Racing ▶</button>
+      </section>
+    </div>
+  `;
+}
+
+function buildGameHTML() {
+  return `
+    <div id="game-view">
+      <div class="game-topbar">
+        <button id="back-btn" class="back-btn">← Garage</button>
+        <span id="race-status" class="race-status-bar"></span>
       </div>
-      <div class="garage-group">
-        <div class="garage-label">Kart</div>
-        <div class="color-swatches" id="color-swatches">${swatches}</div>
-      </div>
-      <div class="garage-group">
-        <div class="garage-label">Avatar</div>
-        <div class="avatar-options" id="avatar-options">${avatarBtns}</div>
+      <div class="game-shell">
+        <div id="game-root" aria-label="Wacker Kart game canvas"></div>
       </div>
     </div>
   `;
 }
 
-app.innerHTML = `
-  <main class="layout">
-    <section class="panel">
-      <h1>Wacker Kart Prototype</h1>
-      <div class="track-picker">
-        <label for="track-select">Track</label>
-        <select id="track-select" class="track-select">
-          ${trackOptions.map((t) => `<option value="${t.id}">${t.name}</option>`).join("")}
-        </select>
-      </div>
-      <p class="track-name">Selected route: <span id="selected-track-name"></span></p>
-      <p id="route-description"></p>
-      ${buildGarageHTML()}
-      <p>Controls: Space starts the race, arrow keys drive, X uses your held item, and R restarts.</p>
-      <p id="race-status" class="hint">Press Space to begin the ${getSelectedTrack().name} run.</p>
-    </section>
-    <section class="game-shell">
-      <div id="game-root" aria-label="Wacker Kart game canvas"></div>
-    </section>
-  </main>
-`;
+// ── Render lobby ──────────────────────────────────────────────────────────────
 
-// ── Track selector ────────────────────────────────────────────────────────────
-document.getElementById("track-select")?.addEventListener("change", (e) => {
-  selectedTrackId = e.target.value;
-  renderRouteCopy();
-  const statusNode = document.getElementById("race-status");
-  if (statusNode) statusNode.textContent = `Press Space to begin the ${getSelectedTrack().name} run.`;
-  mountGame();
-});
+function showLobby() {
+  if (game) {
+    game.destroy(true);
+    game = null;
+  }
+  app.innerHTML = buildLobbyHTML();
+  bindLobbyEvents();
+}
 
-// ── Kart color swatches ───────────────────────────────────────────────────────
-document.getElementById("color-swatches")?.addEventListener("click", (e) => {
-  const btn = e.target.closest("[data-color]");
-  if (!btn) return;
-  customization.kartColorKey = btn.dataset.color;
-  document.querySelectorAll(".color-swatch").forEach((s) => {
-    s.classList.toggle("selected", s.dataset.color === customization.kartColorKey);
+function showGame() {
+  app.innerHTML = buildGameHTML();
+  setSelectedTrackId(selectedTrackId);
+  game = createGame("game-root");
+
+  document.getElementById("back-btn")?.addEventListener("click", showLobby);
+}
+
+// ── Lobby event bindings ──────────────────────────────────────────────────────
+
+function bindLobbyEvents() {
+  document.getElementById("track-select")?.addEventListener("change", (e) => {
+    selectedTrackId = e.target.value;
+    const desc = document.getElementById("track-description");
+    if (desc) desc.textContent = getSelectedTrack().routeDescription;
   });
-  mountGame();
-});
 
-// ── Avatar selector ───────────────────────────────────────────────────────────
-document.getElementById("avatar-options")?.addEventListener("click", (e) => {
-  const btn = e.target.closest("[data-avatar]");
-  if (!btn) return;
-  customization.avatarKey = btn.dataset.avatar;
-  document.querySelectorAll(".avatar-option").forEach((b) => {
-    b.classList.toggle("selected", b.dataset.avatar === customization.avatarKey);
+  document.getElementById("color-swatches")?.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-color]");
+    if (!btn) return;
+    customization.kartColorKey = btn.dataset.color;
+    document.querySelectorAll(".color-swatch").forEach((s) => {
+      s.classList.toggle("selected", s.dataset.color === customization.kartColorKey);
+    });
   });
-  mountGame();
-});
 
-// ── Player name (debounced — no remount needed) ───────────────────────────────
-document.getElementById("player-name-input")?.addEventListener("input", (e) => {
-  clearTimeout(nameDebounce);
-  nameDebounce = setTimeout(() => {
-    customization.playerName = e.target.value.trim() || "Player 1";
-  }, 500);
-});
+  document.getElementById("avatar-options")?.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-avatar]");
+    if (!btn) return;
+    customization.avatarKey = btn.dataset.avatar;
+    document.querySelectorAll(".avatar-option").forEach((b) => {
+      b.classList.toggle("selected", b.dataset.avatar === customization.avatarKey);
+    });
+  });
 
-renderRouteCopy();
-mountGame();
+  document.getElementById("player-name-input")?.addEventListener("input", (e) => {
+    clearTimeout(nameDebounce);
+    nameDebounce = setTimeout(() => {
+      customization.playerName = e.target.value.trim() || "Player 1";
+    }, 400);
+  });
+
+  document.getElementById("start-btn")?.addEventListener("click", showGame);
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+
+showLobby();

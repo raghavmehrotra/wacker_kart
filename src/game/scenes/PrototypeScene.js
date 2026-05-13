@@ -3,7 +3,7 @@ import { Car } from "../entities/Car.js";
 import { getTrackById, getSelectedTrackId } from "../config/createTrackCatalog.js";
 import { customization, getKartColor } from "../config/playerCustomization.js";
 import { generateKartTexture } from "../sprites/kartSpriteFactory.js";
-import { loadAvatarTextures } from "../sprites/avatarFactory.js";
+import { getAvatarDataUrls } from "../sprites/avatarFactory.js";
 import { HudManager } from "../managers/HudManager.js";
 import { ItemManager } from "../managers/ItemManager.js";
 import { RaceManager } from "../managers/RaceManager.js";
@@ -21,15 +21,24 @@ export class PrototypeScene extends Phaser.Scene {
 
   preload() {
     this.load.tilemapTiledJSON(this.trackMeta.id, this.trackMeta.mapPath);
+
+    // Load avatar images through the Phaser loader so they're ready in create()
+    const avatarUrls = getAvatarDataUrls();
+    for (const [key, dataUrl] of Object.entries(avatarUrls)) {
+      const textureKey = `avatar-${key}`;
+      if (!this.textures.exists(textureKey)) {
+        this.load.image(textureKey, dataUrl);
+      }
+    }
   }
 
   create() {
     const kartTextureKey = generateKartTexture(this, this.kartColor.key, this.kartColor.hex);
-    loadAvatarTextures(this);
-    this._buildScene(kartTextureKey);
+    const avatarTextureKey = `avatar-${customization.avatarKey}`;
+    this._buildScene(kartTextureKey, avatarTextureKey);
   }
 
-  _buildScene(kartTextureKey) {
+  _buildScene(kartTextureKey, avatarTextureKey) {
     const tilemap = this.make.tilemap({ key: this.trackMeta.id });
     this.tilemap = tilemap;
 
@@ -39,7 +48,7 @@ export class PrototypeScene extends Phaser.Scene {
     const spawn = this.trackManager.spawnPoints[0] ?? { x: 1200, y: 760 };
 
     this.controls = this.input.keyboard.createCursorKeys();
-    this.car = new Car(this, spawn.x, spawn.y, Math.PI, { kartTextureKey });
+    this.car = new Car(this, spawn.x, spawn.y, Math.PI, { kartTextureKey, avatarTextureKey });
     this.cameraTarget = this.add.zone(this.car.sprite.x, this.car.sprite.y, 1, 1);
     this.restartKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
     this.startKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
