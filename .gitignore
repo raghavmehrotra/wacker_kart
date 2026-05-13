@@ -7,3 +7,6 @@ dist
 assets/references/
 v1.md
 .Rproj.user
+.env*
+.playwright-mcp/
+.Rhistory
