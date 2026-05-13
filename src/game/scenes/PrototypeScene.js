@@ -1,6 +1,9 @@
 import Phaser from "phaser";
 import { Car } from "../entities/Car.js";
 import { getTrackById, getSelectedTrackId } from "../config/createTrackCatalog.js";
+import { customization, getKartColor } from "../config/playerCustomization.js";
+import { generateKartTexture } from "../sprites/kartSpriteFactory.js";
+import { loadAvatarTextures } from "../sprites/avatarFactory.js";
 import { HudManager } from "../managers/HudManager.js";
 import { ItemManager } from "../managers/ItemManager.js";
 import { RaceManager } from "../managers/RaceManager.js";
@@ -13,6 +16,7 @@ export class PrototypeScene extends Phaser.Scene {
 
   init() {
     this.trackMeta = getTrackById(getSelectedTrackId());
+    this.kartColor = getKartColor();
   }
 
   preload() {
@@ -20,6 +24,12 @@ export class PrototypeScene extends Phaser.Scene {
   }
 
   create() {
+    const kartTextureKey = generateKartTexture(this, this.kartColor.key, this.kartColor.hex);
+    loadAvatarTextures(this);
+    this._buildScene(kartTextureKey);
+  }
+
+  _buildScene(kartTextureKey) {
     const tilemap = this.make.tilemap({ key: this.trackMeta.id });
     this.tilemap = tilemap;
 
@@ -29,7 +39,7 @@ export class PrototypeScene extends Phaser.Scene {
     const spawn = this.trackManager.spawnPoints[0] ?? { x: 1200, y: 760 };
 
     this.controls = this.input.keyboard.createCursorKeys();
-    this.car = new Car(this, spawn.x, spawn.y, Math.PI);
+    this.car = new Car(this, spawn.x, spawn.y, Math.PI, { kartTextureKey });
     this.cameraTarget = this.add.zone(this.car.sprite.x, this.car.sprite.y, 1, 1);
     this.restartKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
     this.startKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
@@ -47,7 +57,6 @@ export class PrototypeScene extends Phaser.Scene {
 
     this.itemManager = new ItemManager(this, {
       pickups: this.trackManager.itemPickups,
-      malortPickupDurationMs: 5000,
       onStatusChange: (msg) => this.setStatusMessage(msg),
     });
     this.itemManager.drawPickups();

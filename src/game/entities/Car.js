@@ -1,14 +1,24 @@
 import Phaser from "phaser";
 
 export class Car {
-  constructor(scene, x, y, initialRotation = 0) {
+  constructor(scene, x, y, initialRotation = 0, options = {}) {
     this.scene = scene;
-    const body = scene.add.rectangle(0, 0, 28, 44, 0xc24b3f);
-    body.setStrokeStyle(2, 0x7d2a24);
-    const windshield = scene.add.rectangle(0, -12, 20, 10, 0xf2d16b);
-    const frontMarker = scene.add.circle(0, -18, 4, 0xffffff);
+    const { kartTextureKey } = options;
 
-    this.sprite = scene.add.container(x, y, [body, windshield, frontMarker]);
+    let children;
+    if (kartTextureKey && scene.textures.exists(kartTextureKey)) {
+      const body = scene.add.image(0, 0, kartTextureKey);
+      body.setDisplaySize(40, 60);
+      children = [body];
+    } else {
+      const body = scene.add.rectangle(0, 0, 28, 44, 0xc24b3f);
+      body.setStrokeStyle(2, 0x7d2a24);
+      const windshield = scene.add.rectangle(0, -12, 20, 10, 0xf2d16b);
+      const frontMarker = scene.add.circle(0, -18, 4, 0xffffff);
+      children = [body, windshield, frontMarker];
+    }
+
+    this.sprite = scene.add.container(x, y, children);
     this.sprite.setDepth(4);
     this.width = 28;
     this.height = 44;
@@ -51,15 +61,8 @@ export class Car {
     if (Math.abs(this.speed) > 4) {
       const direction = this.speed >= 0 ? 1 : -1;
       let steeringInput = 0;
-
-      if (controls.left.isDown) {
-        steeringInput -= 1;
-      }
-
-      if (controls.right.isDown) {
-        steeringInput += 1;
-      }
-
+      if (controls.left.isDown) steeringInput -= 1;
+      if (controls.right.isDown) steeringInput += 1;
       const steeringScale = Math.min(Math.abs(this.speed) / maxForwardSpeed, 1);
       this.rotation += steeringInput * this.getSteeringRate() * steeringScale * direction * dt;
     }
@@ -130,14 +133,8 @@ export class Car {
   }
 
   applyDrag(speed, amount) {
-    if (speed > 0) {
-      return Math.max(0, speed - amount);
-    }
-
-    if (speed < 0) {
-      return Math.min(0, speed + amount);
-    }
-
+    if (speed > 0) return Math.max(0, speed - amount);
+    if (speed < 0) return Math.min(0, speed + amount);
     return 0;
   }
 }

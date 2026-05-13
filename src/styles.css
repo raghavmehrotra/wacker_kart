@@ -74,6 +74,105 @@ body {
   color: #f3c969;
 }
 
+/* ── Garage UI ──────────────────────────────────────────────────────────────── */
+
+.garage {
+  margin: 0.75rem 0 0.25rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  align-items: center;
+}
+
+.garage-label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(245, 241, 232, 0.5);
+  margin-bottom: 0.35rem;
+}
+
+.garage-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.player-name-input {
+  background: rgba(20, 29, 37, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  color: #f5f1e8;
+  font: inherit;
+  font-size: 0.95rem;
+  padding: 0.35rem 0.6rem;
+  width: 160px;
+  outline: none;
+}
+
+.player-name-input:focus {
+  border-color: rgba(243, 201, 105, 0.6);
+}
+
+.color-swatches {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.color-swatch {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: transform 0.12s, border-color 0.12s;
+}
+
+.color-swatch:hover {
+  transform: scale(1.15);
+}
+
+.color-swatch.selected {
+  border-color: #ffffff;
+  transform: scale(1.15);
+}
+
+.avatar-options {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.avatar-option {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: transform 0.12s, border-color 0.12s;
+  padding: 0;
+  background: none;
+  overflow: hidden;
+}
+
+.avatar-option img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 50%;
+}
+
+.avatar-option:hover {
+  transform: scale(1.12);
+}
+
+.avatar-option.selected {
+  border-color: #f3c969;
+  transform: scale(1.12);
+}
+
 .game-shell {
   width: min(960px, 100%);
   padding: 0.75rem;
