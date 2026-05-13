@@ -82,7 +82,7 @@ function generateSurface(track) {
         tile = TILE_ROAD;
       } else if (dist <= shoulderHalfWidth) {
         tile = TILE_SHOULDER;
-      } else if (cx > WATER_X_THRESHOLD) {
+      } else if (track.hasWaterEast && cx > WATER_X_THRESHOLD) {
         tile = TILE_WATER;
       } else {
         tile = TILE_GRASS;
@@ -242,6 +242,7 @@ function buildTiledJSON(track) {
 const TRACKS = [
   {
     id: "lake-shore-drive",
+    hasWaterEast: true,
     roadHalfWidth: 42,
     shoulderHalfWidth: 62,
     spawnPoint: pt(1450, 760),
@@ -263,9 +264,10 @@ const TRACKS = [
   },
   {
     id: "hyde-park",
+    hasWaterEast: false,
     roadHalfWidth: 42,
     shoulderHalfWidth: 62,
-    spawnPoint: pt(1280, 790),
+    spawnPoint: pt(1320, 790),
     finishLine: { x: 880, y: 780, width: 130, height: 28 },
     southTurnaround: { x: 910, y: 3380, width: 350, height: 170 },
     trackPolylines: [
@@ -285,6 +287,7 @@ const TRACKS = [
   },
   {
     id: "ohare",
+    hasWaterEast: false,
     roadHalfWidth: 42,
     shoulderHalfWidth: 62,
     spawnPoint: pt(1190, 690),
@@ -307,9 +310,10 @@ const TRACKS = [
   },
   {
     id: "lower-wacker",
+    hasWaterEast: false,
     roadHalfWidth: 42,
     shoulderHalfWidth: 62,
-    spawnPoint: pt(1400, 790),
+    spawnPoint: pt(1480, 790),
     finishLine: { x: 940, y: 930, width: 120, height: 28 },
     southTurnaround: { x: 1080, y: 3380, width: 360, height: 170 },
     trackPolylines: [
