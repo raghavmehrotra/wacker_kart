@@ -124,12 +124,6 @@ export class TrackManager {
       this.drawCheckerboardLine(this.finishLine.x, this.finishLine.y, 15, 4, 8);
     }
 
-    if (this.turnaround) {
-      const marker = this.scene.add.graphics();
-      marker.lineStyle(4, 0x9fe8ff, 0.9);
-      marker.strokeRectShape(this.turnaround);
-    }
-
     for (const tree of this.treeObstacles) {
       this.drawTreeCluster(tree.x, tree.y, tree.radius);
     }
