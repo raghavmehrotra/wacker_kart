@@ -8,6 +8,8 @@ import { HudManager } from "../managers/HudManager.js";
 import { ItemManager } from "../managers/ItemManager.js";
 import { RaceManager } from "../managers/RaceManager.js";
 import { TrackManager } from "../managers/TrackManager.js";
+import { supabase } from "../../lib/supabase.js";
+import { saveTrackRecord } from "../../lib/db.js";
 
 export class PrototypeScene extends Phaser.Scene {
   constructor() {
@@ -64,6 +66,13 @@ export class PrototypeScene extends Phaser.Scene {
       onStatusChange: (msg) => this.setStatusMessage(msg),
     });
 
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) return;
+      const userId = session.user.id;
+      const trackId = this.trackMeta.id;
+      this.raceManager.onRaceFinish = ({ timeMs }) => saveTrackRecord(userId, trackId, timeMs);
+    });
+
     this.itemManager = new ItemManager(this, {
       pickups: this.trackManager.itemPickups,
       onStatusChange: (msg) => this.setStatusMessage(msg),
@@ -77,6 +86,7 @@ export class PrototypeScene extends Phaser.Scene {
     this.cameras.main.startFollow(this.cameraTarget, true, 0.12, 0.12);
     this.cameras.main.setZoom(1);
     this.cameras.main.setRoundPixels(false);
+    this.cameras.main.rotation = -this.car.rotation;
     this.hudManager.configureCamera();
     this.setStatusMessage(`Press Space to begin the ${this.trackMeta.name} run.`);
   }
@@ -121,11 +131,8 @@ export class PrototypeScene extends Phaser.Scene {
     this.cameraTarget.y = this.car.sprite.y - Math.cos(this.car.rotation) * lookAheadDistance;
 
     const targetRotation = -this.car.rotation;
-    this.cameras.main.rotation = Phaser.Math.Angle.RotateTo(
-      this.cameras.main.rotation,
-      targetRotation,
-      1.75 * dt,
-    );
+    const angleDiff = Phaser.Math.Angle.Wrap(targetRotation - this.cameras.main.rotation);
+    this.cameras.main.rotation += angleDiff * Math.min(1, 2.5 * dt);
 
     this.hudManager.render({
       displayedLap: this.raceManager.getDisplayedLap(),

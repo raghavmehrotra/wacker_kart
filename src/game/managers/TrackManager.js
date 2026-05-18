@@ -37,6 +37,7 @@ export class TrackManager {
 
     const tileset = this.tilemap.addTilesetImage(TILESET_KEY, textureKey);
     this.surfaceLayer = this.tilemap.createLayer("surface", tileset, 0, 0);
+    this.surfaceLayer.setCullPadding(6, 6);
 
     this.extractObjects();
     this.drawTrackDecorations(this.trackId);

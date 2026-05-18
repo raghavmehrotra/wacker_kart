@@ -305,3 +305,343 @@ body {
     width: 100%;
   }
 }
+
+/* ── Auth screen ────────────────────────────────────────────────────────────── */
+
+#auth-screen {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem 1.5rem;
+}
+
+.auth-panel {
+  width: min(420px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.auth-subtitle {
+  color: rgba(245, 241, 232, 0.6);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* ── OAuth buttons ──────────────────────────────────────────────────────────── */
+
+.oauth-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.7rem 1.2rem;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: filter 0.12s, transform 0.08s;
+}
+
+.oauth-btn:hover  { filter: brightness(1.1); }
+.oauth-btn:active { transform: scale(0.97); }
+
+.oauth-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.oauth-btn--google {
+  background: #fff;
+  color: #3c4043;
+  border: 1px solid #dadce0;
+}
+
+.oauth-btn--github {
+  background: #24292e;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ── User chip ──────────────────────────────────────────────────────────────── */
+
+.user-chip {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-bottom: -0.25rem;
+}
+
+.user-email {
+  font-size: 0.8rem;
+  color: rgba(245, 241, 232, 0.5);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 220px;
+}
+
+.logout-btn {
+  padding: 0.25rem 0.65rem;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  color: rgba(245, 241, 232, 0.7);
+  font: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: background 0.12s;
+  white-space: nowrap;
+}
+
+.logout-btn:hover {
+  background: rgba(255, 255, 255, 0.13);
+}
+
+/* ── Personal Records panel ─────────────────────────────────────────────────── */
+
+.pr-panel {
+  padding: 0.6rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.pr-title {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(245, 241, 232, 0.5);
+  margin-bottom: 0.5rem;
+}
+
+.pr-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.22rem 0;
+  font-size: 0.88rem;
+}
+
+.pr-row + .pr-row {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.pr-track {
+  color: rgba(245, 241, 232, 0.75);
+}
+
+.pr-time {
+  font-variant-numeric: tabular-nums;
+  color: #f3c969;
+  font-weight: 600;
+}
+
+.pr-time.pr-empty {
+  color: rgba(245, 241, 232, 0.3);
+  font-weight: 400;
+}
+
+/* ── Leaderboard button ─────────────────────────────────────────────────────── */
+
+.leaderboard-btn {
+  align-self: stretch;
+  padding: 0.55rem 1.5rem;
+  background: rgba(255, 255, 255, 0.06);
+  color: #f5f1e8;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  font: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.leaderboard-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* ── Leaderboard screen ─────────────────────────────────────────────────────── */
+
+#leaderboard-screen {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem 1.5rem;
+}
+
+.leaderboard-panel {
+  width: min(640px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.leaderboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lb-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.lb-tab {
+  padding: 0.35rem 0.85rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: rgba(245, 241, 232, 0.7);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+
+.lb-tab:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.lb-tab.active {
+  background: rgba(194, 75, 63, 0.35);
+  border-color: #c24b3f;
+  color: #fff;
+}
+
+.lb-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.lb-table th {
+  text-align: left;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: rgba(245, 241, 232, 0.45);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.lb-table td {
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-variant-numeric: tabular-nums;
+}
+
+.lb-table tr.lb-me td {
+  color: #f3c969;
+  font-weight: 600;
+}
+
+/* ── Profile screen ─────────────────────────────────────────────────────────── */
+
+#profile-screen {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem 1.5rem;
+}
+
+.profile-panel {
+  width: min(480px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.profile-title {
+  margin: 0;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+}
+
+.profile-avatar-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 0.5rem 0 0.25rem;
+}
+
+.profile-avatar-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 6px;
+}
+
+.profile-name {
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.profile-email {
+  text-align: center;
+  font-size: 0.82rem;
+  color: rgba(245, 241, 232, 0.45);
+  margin-top: -0.4rem;
+}
+
+.profile-meta-row {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 0.25rem 0;
+}
+
+.profile-meta-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.5rem 0.9rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  min-width: 90px;
+}
+
+.profile-meta-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: rgba(245, 241, 232, 0.4);
+}
+
+.profile-meta-value {
+  font-size: 0.88rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.profile-color-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.profile-provider {
+  text-transform: capitalize;
+}
