@@ -1,11 +1,11 @@
 // Music via HTML5 Audio (real files), SFX via Web Audio API
 
 const TRACK_PATHS = {
-  'lobby':           '/audio/Shell Sprint.mp3',
-  'lake-shore-drive':'/audio/Shell Sprint.mp3',
-  'hyde-park':       '/audio/UChicago_Quad.m4a',
-  'ohare':           '/audio/OHare.m4a',
-  'lower-wacker':    '/audio/Wacker.m4a',
+  'lobby':           '/audio/lobby.mp3',
+  'lake-shore-drive':'/audio/lakeshore.mp3',
+  'hyde-park':       '/audio/quad.mp3',
+  'ohare':           "/audio/O'Hare.mp3",
+  'lower-wacker':    '/audio/wacker.mp3',
 };
 
 let currentTrack = null;
