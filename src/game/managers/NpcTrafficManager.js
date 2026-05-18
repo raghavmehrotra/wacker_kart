@@ -19,8 +19,7 @@ const NPC_STOP_MS = 3000;
 
 const CONFIGS = [
   { startIdx: 0,  speed: 235, bodyColor: 0xf0c020, label: "Yellow Cab" },
-  { startIdx: 9,  speed: 205, bodyColor: 0xdcdcd4, label: "Delivery Van" },
-  { startIdx: 18, speed: 245, bodyColor: 0x3366aa, label: "Blue Sedan" },
+  { startIdx: 13, speed: 215, bodyColor: 0xdcdcd4, label: "Delivery Van" },
 ];
 
 export class NpcTrafficManager {
