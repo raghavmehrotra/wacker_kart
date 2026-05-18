@@ -109,6 +109,7 @@ export class PrototypeScene extends Phaser.Scene {
 
     if (Phaser.Input.Keyboard.JustDown(this.restartKey)) {
       stopMusic();
+      this._hidePauseOverlay();
       this.scene.restart();
       return;
     }
@@ -121,9 +122,11 @@ export class PrototypeScene extends Phaser.Scene {
         this.racePaused = !this.racePaused;
         if (this.racePaused) {
           stopMusic();
-          this.setStatusMessage("Paused — Press Space to resume.");
+          this.setStatusMessage("");
+          this._showPauseOverlay();
         } else {
           startMusic(this.trackMeta.id);
+          this._hidePauseOverlay();
         }
       }
     }
@@ -188,6 +191,26 @@ export class PrototypeScene extends Phaser.Scene {
   setStatusMessage(message) {
     const statusNode = document.getElementById("race-status");
     if (statusNode) statusNode.textContent = message;
+  }
+
+  _showPauseOverlay() {
+    if (document.getElementById("pause-overlay")) return;
+    const root = document.getElementById("game-root");
+    if (!root) return;
+    const el = document.createElement("div");
+    el.id = "pause-overlay";
+    el.className = "pause-overlay";
+    el.innerHTML = `
+      <div class="pause-box">
+        <h2>PAUSED</h2>
+        <p>Press Space to resume</p>
+      </div>
+    `;
+    root.appendChild(el);
+  }
+
+  _hidePauseOverlay() {
+    document.getElementById("pause-overlay")?.remove();
   }
 
   formatTime(elapsedMs) {

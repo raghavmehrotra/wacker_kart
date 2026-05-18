@@ -285,6 +285,7 @@ body {
 #game-root {
   width: 100%;
   line-height: 0;
+  position: relative;
 }
 
 #game-root canvas {
@@ -292,6 +293,51 @@ body {
   width: 100%;
   height: auto;
   border-radius: 12px;
+}
+
+.pause-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.62);
+  border-radius: 12px;
+  z-index: 50;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  animation: pause-fade-in 0.15s ease;
+}
+
+@keyframes pause-fade-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.pause-box {
+  background: linear-gradient(160deg, #1a1f2e 0%, #111520 100%);
+  border: 2px solid rgba(243, 201, 105, 0.45);
+  border-radius: 20px;
+  padding: 2.4rem 3.2rem;
+  text-align: center;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06);
+  min-width: 260px;
+}
+
+.pause-box h2 {
+  font-size: 2.6rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: #f3c969;
+  margin: 0 0 0.5rem;
+  text-shadow: 0 0 24px rgba(243, 201, 105, 0.5);
+}
+
+.pause-box p {
+  font-size: 0.95rem;
+  color: rgba(245, 241, 232, 0.65);
+  margin: 0;
+  letter-spacing: 0.04em;
 }
 
 @media (max-width: 700px) {
