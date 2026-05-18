@@ -328,6 +328,44 @@ body {
   margin: 0;
 }
 
+/* ── OAuth buttons ──────────────────────────────────────────────────────────── */
+
+.oauth-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.7rem 1.2rem;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: filter 0.12s, transform 0.08s;
+}
+
+.oauth-btn:hover  { filter: brightness(1.1); }
+.oauth-btn:active { transform: scale(0.97); }
+
+.oauth-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.oauth-btn--google {
+  background: #fff;
+  color: #3c4043;
+  border: 1px solid #dadce0;
+}
+
+.oauth-btn--github {
+  background: #24292e;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 /* ── User chip ──────────────────────────────────────────────────────────────── */
 
 .user-chip {
