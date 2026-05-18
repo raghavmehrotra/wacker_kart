@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { Car } from "../entities/Car.js";
 import { getTrackById, getSelectedTrackId } from "../config/createTrackCatalog.js";
 import { customization, getKartColor } from "../config/playerCustomization.js";
-import { generateKartTexture } from "../sprites/kartSpriteFactory.js";
+import { generateKartTexture, generateBicycleTexture } from "../sprites/kartSpriteFactory.js";
 import { getAvatarDataUrls } from "../sprites/avatarFactory.js";
 import { HudManager } from "../managers/HudManager.js";
 import { ItemManager } from "../managers/ItemManager.js";
@@ -36,7 +36,9 @@ export class PrototypeScene extends Phaser.Scene {
   }
 
   create() {
-    const kartTextureKey = generateKartTexture(this, this.kartColor.key, this.kartColor.hex);
+    const kartTextureKey = this.trackMeta.id === 'hyde-park'
+      ? generateBicycleTexture(this, this.kartColor.key, this.kartColor.hex)
+      : generateKartTexture(this, this.kartColor.key, this.kartColor.hex);
     const avatarTextureKey = `avatar-${customization.avatarKey}`;
     this._buildScene(kartTextureKey, avatarTextureKey);
   }
@@ -81,8 +83,9 @@ export class PrototypeScene extends Phaser.Scene {
     this.itemManager.drawPickups();
     this.itemManager.reset(this.car);
 
-    this.npcTraffic = this.trackMeta.id === "lower-wacker"
-      ? new NpcTrafficManager(this)
+    const NPC_TRACKS = ["lower-wacker", "ohare", "hyde-park"];
+    this.npcTraffic = NPC_TRACKS.includes(this.trackMeta.id)
+      ? new NpcTrafficManager(this, this.trackMeta.id)
       : null;
     this.playerStunMs = 0;
 

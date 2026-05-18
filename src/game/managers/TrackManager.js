@@ -124,14 +124,11 @@ export class TrackManager {
       this.drawCheckerboardLine(this.finishLine.x, this.finishLine.y, 15, 4, 8);
     }
 
-    if (this.turnaround) {
-      const marker = this.scene.add.graphics();
-      marker.lineStyle(4, 0x9fe8ff, 0.9);
-      marker.strokeRectShape(this.turnaround);
-    }
-
-    for (const tree of this.treeObstacles) {
-      this.drawTreeCluster(tree.x, tree.y, tree.radius);
+    // O'Hare uses parked aircraft as visual obstacles (drawn in decorateOHare)
+    if (this.trackId !== 'ohare') {
+      for (const tree of this.treeObstacles) {
+        this.drawTreeCluster(tree.x, tree.y, tree.radius);
+      }
     }
   }
 
@@ -270,21 +267,21 @@ export class TrackManager {
     const bldg = this.scene.add.graphics().setDepth(2);
     bldg.fillStyle(0xc8b890, 1);
 
-    // East-side buildings (inside of east lane)
+    // East-side buildings (outer edge of east lane, east side)
     const eastB = [
-      [1640, 580, 110, 78], [1642, 720, 106, 66], [1638, 850, 114, 72],
-      [1644, 990, 104, 68], [1640, 1130, 108, 76], [1638, 1280, 112, 70],
-      [1642, 1440, 106, 66], [1638, 1600, 114, 72], [1644, 1760, 104, 68],
-      [1640, 1920, 108, 76], [1638, 2080, 112, 70], [1642, 2280, 106, 80],
-      [1638, 2480, 114, 72], [1644, 2680, 104, 68], [1640, 2880, 108, 76],
+      [1872, 580, 110, 78], [1874, 720, 106, 66], [1870, 850, 114, 72],
+      [1876, 990, 104, 68], [1872, 1130, 108, 76], [1870, 1280, 112, 70],
+      [1874, 1440, 106, 66], [1870, 1600, 114, 72], [1876, 1760, 104, 68],
+      [1872, 1920, 108, 76], [1870, 2080, 112, 70], [1874, 2280, 106, 80],
+      [1870, 2480, 114, 72], [1876, 2680, 104, 68], [1872, 2880, 108, 76],
     ];
-    // West-side buildings (inside of west lane)
+    // West-side buildings (outer edge of west lane, west side)
     const westB = [
-      [750, 580, 108, 78], [752, 720, 104, 66], [748, 850, 112, 72],
-      [754, 990, 102, 68], [750, 1130, 106, 76], [748, 1280, 110, 70],
-      [752, 1440, 104, 66], [748, 1600, 112, 72], [754, 1760, 102, 68],
-      [750, 1920, 106, 76], [748, 2080, 110, 70], [752, 2280, 104, 80],
-      [748, 2480, 112, 72], [754, 2680, 102, 68], [750, 2880, 106, 76],
+      [518, 580, 108, 78], [520, 720, 104, 66], [516, 850, 112, 72],
+      [522, 990, 102, 68], [518, 1130, 106, 76], [516, 1280, 110, 70],
+      [520, 1440, 104, 66], [516, 1600, 112, 72], [522, 1760, 102, 68],
+      [518, 1920, 106, 76], [516, 2080, 110, 70], [520, 2280, 104, 80],
+      [516, 2480, 112, 72], [522, 2680, 102, 68], [518, 2880, 106, 76],
     ];
 
     for (const [x, y, w, h] of [...eastB, ...westB]) {
@@ -370,6 +367,47 @@ export class TrackManager {
       [920,2400],[1080,2420],[1250,2400],[1420,2420],[1580,2400],
     ];
     for (const [tx, ty] of treePts) this.drawTreeCluster(tx, ty, 13);
+
+    // ── Building labels ───────────────────────────────────────────────────────
+    this.scene.add.text(1927, 850, 'Rosenwald Hall', {
+      fontSize: '9px', color: '#3a2810', fontFamily: 'serif', fontStyle: 'bold',
+    }).setOrigin(0.5).setDepth(5);
+    this.scene.add.text(1926, 1130, 'Grounds of Being ☕', {
+      fontSize: '9px', color: '#3a2810', fontFamily: 'serif', fontStyle: 'bold',
+    }).setOrigin(0.5).setDepth(5);
+
+    // ── Taco trucks at south U-turn ───────────────────────────────────────────
+    const drawTacoTruck = (tx, ty) => {
+      const t = this.scene.add.graphics().setDepth(5);
+      // Truck body
+      t.fillStyle(0xe8a020, 1);
+      t.fillRect(tx - 26, ty - 16, 52, 32);
+      // Cab
+      t.fillStyle(0xc87818, 1);
+      t.fillRect(tx - 26, ty - 16, 18, 32);
+      // Serving window
+      t.fillStyle(0x99ccdd, 0.9);
+      t.fillRect(tx - 2, ty - 10, 20, 14);
+      t.lineStyle(1, 0x886010, 1);
+      t.strokeRect(tx - 2, ty - 10, 20, 14);
+      // Awning
+      t.fillStyle(0xcc3311, 1);
+      t.fillRect(tx - 4, ty - 18, 28, 5);
+      // Wheels
+      t.fillStyle(0x222222, 1);
+      t.fillCircle(tx - 18, ty + 16, 6);
+      t.fillCircle(tx + 14, ty + 16, 6);
+      // Roof sign board
+      t.fillStyle(0xfff8e0, 1);
+      t.fillRect(tx - 22, ty - 32, 44, 14);
+      t.lineStyle(2, 0xcc3311, 1);
+      t.strokeRect(tx - 22, ty - 32, 44, 14);
+      this.scene.add.text(tx, ty - 25, '🌮 TACOS', {
+        fontSize: '8px', color: '#cc3311', fontFamily: 'sans-serif', fontStyle: 'bold',
+      }).setOrigin(0.5).setDepth(6);
+    };
+    drawTacoTruck(980, 3650);
+    drawTacoTruck(1390, 3650);
   }
 
   decorateOHare() {
