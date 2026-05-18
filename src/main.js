@@ -10,7 +10,7 @@ import { showLeaderboardScreen } from "./ui/leaderboardScreen.js";
 import { showProfileScreen } from "./ui/profileScreen.js";
 import { showInstructionsScreen } from "./ui/instructionsScreen.js";
 import { guest } from "./lib/guestState.js";
-import { stopMusic } from "./lib/audioManager.js";
+import { startMusic, stopMusic } from "./lib/audioManager.js";
 
 const app = document.querySelector("#app");
 const trackOptions = getTrackOptions();
@@ -181,9 +181,11 @@ async function showLobby() {
 
   app.innerHTML = buildLobbyHTML(personalRecords);
   bindLobbyEvents();
+  startMusic('lobby');
 }
 
 function showGame() {
+  stopMusic();
   app.innerHTML = buildGameHTML();
   setSelectedTrackId(selectedTrackId);
   game = createGame("game-root");
