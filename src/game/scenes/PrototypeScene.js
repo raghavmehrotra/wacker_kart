@@ -8,6 +8,8 @@ import { HudManager } from "../managers/HudManager.js";
 import { ItemManager } from "../managers/ItemManager.js";
 import { RaceManager } from "../managers/RaceManager.js";
 import { TrackManager } from "../managers/TrackManager.js";
+import { supabase } from "../../lib/supabase.js";
+import { saveTrackRecord } from "../../lib/db.js";
 
 export class PrototypeScene extends Phaser.Scene {
   constructor() {
@@ -62,6 +64,13 @@ export class PrototypeScene extends Phaser.Scene {
       turnaroundName: this.trackMeta.turnaroundName,
       formatTime: (ms) => this.formatTime(ms),
       onStatusChange: (msg) => this.setStatusMessage(msg),
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) return;
+      const userId = session.user.id;
+      const trackId = this.trackMeta.id;
+      this.raceManager.onRaceFinish = ({ timeMs }) => saveTrackRecord(userId, trackId, timeMs);
     });
 
     this.itemManager = new ItemManager(this, {

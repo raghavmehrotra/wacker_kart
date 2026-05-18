@@ -82,6 +82,7 @@ export class RaceManager {
       this.raceFinished = true;
       this.reachedSouthTurnaround = false;
       this.onStatusChange(`Finished in ${this.formatTime(this.elapsedMs)}. Press R to restart.`);
+      this.onRaceFinish?.({ timeMs: this.elapsedMs });
       return;
     }
 

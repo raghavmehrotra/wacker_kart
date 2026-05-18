@@ -3,20 +3,47 @@ import { createGame } from "./game/createGame.js";
 import { getTrackOptions, setSelectedTrackId } from "./game/config/createTrackCatalog.js";
 import { KART_COLORS, AVATARS, customization } from "./game/config/playerCustomization.js";
 import { getAvatarDataUrls } from "./game/sprites/avatarFactory.js";
+import { supabase } from "./lib/supabase.js";
+import { upsertProfile, loadProfile, getPersonalRecords } from "./lib/db.js";
+import { showAuthScreen } from "./ui/authScreen.js";
+import { showLeaderboardScreen } from "./ui/leaderboardScreen.js";
 
 const app = document.querySelector("#app");
 const trackOptions = getTrackOptions();
 let selectedTrackId = trackOptions[0].id;
 let game = null;
 let nameDebounce = null;
+let profileDebounce = null;
+let currentSession = null;
 
 function getSelectedTrack() {
   return trackOptions.find((t) => t.id === selectedTrackId) ?? trackOptions[0];
 }
 
+function formatTime(ms) {
+  const totalCs = Math.floor(ms / 10);
+  const cs = totalCs % 100;
+  const totalSec = Math.floor(totalCs / 100);
+  const sec = totalSec % 60;
+  const min = Math.floor(totalSec / 60);
+  return `${String(min).padStart(2, "0")}:${String(sec).padStart(2, "0")}.${String(cs).padStart(2, "0")}`;
+}
+
+function scheduleProfileSave() {
+  if (!currentSession) return;
+  clearTimeout(profileDebounce);
+  profileDebounce = setTimeout(() => {
+    upsertProfile(currentSession.user.id, {
+      display_name: customization.playerName,
+      kart_color_key: customization.kartColorKey,
+      avatar_key: customization.avatarKey,
+    });
+  }, 600);
+}
+
 // ── Lobby screen ──────────────────────────────────────────────────────────────
 
-function buildLobbyHTML() {
+function buildLobbyHTML(personalRecords = []) {
   const avatarUrls = getAvatarDataUrls();
 
   const trackOpts = trackOptions.map((t) =>
@@ -44,9 +71,28 @@ function buildLobbyHTML() {
     </button>
   `).join("");
 
+  const recordsMap = Object.fromEntries(personalRecords.map((r) => [r.track_id, r.time_ms]));
+  const recordRows = trackOptions.map((t) => {
+    const best = recordsMap[t.id];
+    return `
+      <div class="pr-row">
+        <span class="pr-track">${t.name}</span>
+        <span class="pr-time${best ? "" : " pr-empty"}">${best ? formatTime(best) : "--:--.--"}</span>
+      </div>
+    `;
+  }).join("");
+
+  const userChip = currentSession
+    ? `<div class="user-chip">
+        <span class="user-email">${currentSession.user.email}</span>
+        <button id="logout-btn" class="logout-btn">Log out</button>
+      </div>`
+    : "";
+
   return `
     <div id="lobby">
       <section class="panel lobby-panel">
+        ${userChip}
         <h1>Wacker Kart</h1>
 
         <div class="lobby-row">
@@ -82,6 +128,12 @@ function buildLobbyHTML() {
 
         <p id="track-description" class="track-description">${getSelectedTrack().routeDescription}</p>
 
+        <div class="pr-panel">
+          <div class="pr-title">Personal Records</div>
+          <div id="pr-rows">${recordRows}</div>
+        </div>
+
+        <button id="leaderboard-btn" class="leaderboard-btn">🏆 Leaderboard</button>
         <button id="start-btn" class="start-btn">Start Racing ▶</button>
       </section>
     </div>
@@ -104,12 +156,18 @@ function buildGameHTML() {
 
 // ── Render lobby ──────────────────────────────────────────────────────────────
 
-function showLobby() {
+async function showLobby() {
   if (game) {
     game.destroy(true);
     game = null;
   }
-  app.innerHTML = buildLobbyHTML();
+
+  let personalRecords = [];
+  if (currentSession) {
+    personalRecords = await getPersonalRecords(currentSession.user.id);
+  }
+
+  app.innerHTML = buildLobbyHTML(personalRecords);
   bindLobbyEvents();
 }
 
@@ -137,6 +195,7 @@ function bindLobbyEvents() {
     document.querySelectorAll(".color-swatch").forEach((s) => {
       s.classList.toggle("selected", s.dataset.color === customization.kartColorKey);
     });
+    scheduleProfileSave();
   });
 
   document.getElementById("avatar-options")?.addEventListener("click", (e) => {
@@ -146,18 +205,59 @@ function bindLobbyEvents() {
     document.querySelectorAll(".avatar-option").forEach((b) => {
       b.classList.toggle("selected", b.dataset.avatar === customization.avatarKey);
     });
+    scheduleProfileSave();
   });
 
   document.getElementById("player-name-input")?.addEventListener("input", (e) => {
     clearTimeout(nameDebounce);
     nameDebounce = setTimeout(() => {
       customization.playerName = e.target.value.trim() || "Player 1";
+      scheduleProfileSave();
     }, 400);
+  });
+
+  document.getElementById("logout-btn")?.addEventListener("click", async () => {
+    await supabase.auth.signOut();
+    currentSession = null;
+    showAuthScreen((session) => loadAndShowLobby(session));
+  });
+
+  document.getElementById("leaderboard-btn")?.addEventListener("click", () => {
+    if (!currentSession) return;
+    showLeaderboardScreen(currentSession, showLobby);
   });
 
   document.getElementById("start-btn")?.addEventListener("click", showGame);
 }
 
+// ── Auth + profile boot ───────────────────────────────────────────────────────
+
+async function loadAndShowLobby(session) {
+  currentSession = session;
+
+  const profile = await loadProfile(session.user.id);
+  if (profile) {
+    customization.playerName = profile.display_name;
+    customization.kartColorKey = profile.kart_color_key;
+    customization.avatarKey = profile.avatar_key;
+  } else {
+    await upsertProfile(session.user.id, {
+      display_name: customization.playerName,
+      kart_color_key: customization.kartColorKey,
+      avatar_key: customization.avatarKey,
+    });
+  }
+
+  showLobby();
+}
+
 // ── Boot ──────────────────────────────────────────────────────────────────────
 
-showLobby();
+(async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    await loadAndShowLobby(session);
+  } else {
+    showAuthScreen((session) => loadAndShowLobby(session));
+  }
+})();
