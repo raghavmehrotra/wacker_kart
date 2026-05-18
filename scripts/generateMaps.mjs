@@ -243,8 +243,8 @@ const TRACKS = [
   {
     id: "lake-shore-drive",
     hasWaterEast: true,
-    roadHalfWidth: 64,
-    shoulderHalfWidth: 96,
+    roadHalfWidth: 80,
+    shoulderHalfWidth: 112,
     spawnPoint: pt(1450, 760),
     finishLine: { x: 872, y: 690, width: 120, height: 28 },
     southTurnaround: { x: 1010, y: 3390, width: 390, height: 170 },
@@ -266,8 +266,8 @@ const TRACKS = [
     // Rectangular campus loop — straight east/west legs, green infield Quad
     id: "hyde-park",
     hasWaterEast: false,
-    roadHalfWidth: 64,
-    shoulderHalfWidth: 96,
+    roadHalfWidth: 80,
+    shoulderHalfWidth: 112,
     spawnPoint: pt(1730, 540),
     finishLine: { x: 1700, y: 436, width: 96, height: 32 },
     southTurnaround: { x: 840, y: 3550, width: 740, height: 210 },
