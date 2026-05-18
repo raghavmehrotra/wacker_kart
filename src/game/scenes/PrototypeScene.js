@@ -11,6 +11,7 @@ import { TrackManager } from "../managers/TrackManager.js";
 import { NpcTrafficManager } from "../managers/NpcTrafficManager.js";
 import { supabase } from "../../lib/supabase.js";
 import { saveTrackRecord } from "../../lib/db.js";
+import { guest } from "../../lib/guestState.js";
 
 export class PrototypeScene extends Phaser.Scene {
   constructor() {
@@ -70,7 +71,7 @@ export class PrototypeScene extends Phaser.Scene {
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) return;
+      if (!session || guest.active) return;
       const userId = session.user.id;
       const trackId = this.trackMeta.id;
       this.raceManager.onRaceFinish = ({ timeMs }) => saveTrackRecord(userId, trackId, timeMs);

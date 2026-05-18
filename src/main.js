@@ -8,6 +8,7 @@ import { upsertProfile, loadProfile, getPersonalRecords } from "./lib/db.js";
 import { showAuthScreen } from "./ui/authScreen.js";
 import { showLeaderboardScreen } from "./ui/leaderboardScreen.js";
 import { showProfileScreen } from "./ui/profileScreen.js";
+import { guest } from "./lib/guestState.js";
 
 const app = document.querySelector("#app");
 const trackOptions = getTrackOptions();
@@ -47,9 +48,11 @@ function scheduleProfileSave() {
 function buildLobbyHTML(personalRecords = []) {
   const avatarUrls = getAvatarDataUrls();
 
-  const trackOpts = trackOptions.map((t) =>
-    `<option value="${t.id}"${t.id === selectedTrackId ? " selected" : ""}>${t.name}</option>`,
-  ).join("");
+  const trackOpts = guest.active
+    ? `<option value="lake-shore-drive" selected>Lake Shore Drive</option>`
+    : trackOptions.map((t) =>
+        `<option value="${t.id}"${t.id === selectedTrackId ? " selected" : ""}>${t.name}</option>`,
+      ).join("");
 
   const swatches = KART_COLORS.map((c) => `
     <button
@@ -135,7 +138,10 @@ function buildLobbyHTML(personalRecords = []) {
           <div id="pr-rows">${recordRows}</div>
         </div>
 
-        <button id="leaderboard-btn" class="leaderboard-btn">🏆 Leaderboard</button>
+        ${guest.active
+          ? `<p class="guest-banner">Playing as guest — <button id="signin-from-lobby" class="inline-link-btn">sign in</button> to save times &amp; unlock all tracks.</p>`
+          : `<button id="leaderboard-btn" class="leaderboard-btn">🏆 Leaderboard</button>`
+        }
         <button id="start-btn" class="start-btn">Start Racing ▶</button>
       </section>
     </div>
@@ -184,7 +190,13 @@ function showGame() {
 // ── Lobby event bindings ──────────────────────────────────────────────────────
 
 function bindLobbyEvents() {
+  document.getElementById("signin-from-lobby")?.addEventListener("click", () => {
+    guest.active = false;
+    showAuthScreen((session) => loadAndShowLobby(session), showGuestLobby);
+  });
+
   document.getElementById("track-select")?.addEventListener("change", (e) => {
+    if (guest.active) return;
     selectedTrackId = e.target.value;
     const desc = document.getElementById("track-description");
     if (desc) desc.textContent = getSelectedTrack().routeDescription;
@@ -231,7 +243,8 @@ function bindLobbyEvents() {
   document.getElementById("logout-btn")?.addEventListener("click", async () => {
     await supabase.auth.signOut();
     currentSession = null;
-    showAuthScreen((session) => loadAndShowLobby(session));
+    guest.active = false;
+    showAuthScreen((session) => loadAndShowLobby(session), showGuestLobby);
   });
 
   document.getElementById("leaderboard-btn")?.addEventListener("click", () => {
@@ -240,6 +253,12 @@ function bindLobbyEvents() {
   });
 
   document.getElementById("start-btn")?.addEventListener("click", showGame);
+}
+
+function showGuestLobby() {
+  guest.active = true;
+  selectedTrackId = 'lake-shore-drive';
+  showLobby();
 }
 
 // ── Auth + profile boot ───────────────────────────────────────────────────────
@@ -270,6 +289,6 @@ async function loadAndShowLobby(session) {
   if (session) {
     await loadAndShowLobby(session);
   } else {
-    showAuthScreen((session) => loadAndShowLobby(session));
+    showAuthScreen((session) => loadAndShowLobby(session), showGuestLobby);
   }
 })();
