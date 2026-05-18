@@ -263,73 +263,95 @@ const TRACKS = [
     ],
   },
   {
+    // Rectangular campus loop — straight east/west legs, green infield Quad
     id: "hyde-park",
     hasWaterEast: false,
-    roadHalfWidth: 42,
-    shoulderHalfWidth: 62,
-    spawnPoint: pt(1320, 790),
-    finishLine: { x: 880, y: 780, width: 130, height: 28 },
-    southTurnaround: { x: 910, y: 3380, width: 350, height: 170 },
+    roadHalfWidth: 48,
+    shoulderHalfWidth: 72,
+    spawnPoint: pt(1730, 540),
+    finishLine: { x: 1700, y: 436, width: 96, height: 32 },
+    southTurnaround: { x: 840, y: 3550, width: 740, height: 210 },
     trackPolylines: [
-      [pt(1280,640),pt(1380,1010),pt(1470,1330),pt(1610,1690),pt(1560,2090),pt(1380,2470),pt(1280,2870),pt(1330,3210)],
-      [pt(1330,3210),pt(1240,3460),pt(1080,3550),pt(920,3480),pt(820,3310)],
-      [pt(820,3310),pt(720,2950),pt(620,2590),pt(700,2240),pt(890,1880),pt(970,1520),pt(900,1110),pt(940,720)],
-      [pt(940,720),pt(1020,470),pt(1160,380),pt(1310,420),pt(1280,640)],
+      // East side going south (straight)
+      [pt(1750,456), pt(1750,1000), pt(1750,2000), pt(1750,3000), pt(1750,3500)],
+      // South connector — the Midway
+      [pt(1750,3500), pt(1500,3700), pt(1250,3790), pt(1000,3700), pt(750,3500)],
+      // West side going north (straight)
+      [pt(750,3500), pt(750,3000), pt(750,2000), pt(750,1000), pt(750,456)],
+      // North connector — Quad Drive
+      [pt(750,456), pt(1000,278), pt(1250,210), pt(1500,278), pt(1750,456)],
     ],
     malortPickups: [
-      { x: 1550, y: 1810, radius: 24 },
-      { x: 750, y: 2380, radius: 24 },
+      { x: 1750, y: 2000, radius: 24 },
+      { x: 750, y: 1500, radius: 24 },
     ],
     treeObstacles: [
-      { x: 1460, y: 2470, radius: 34 },
-      { x: 860, y: 2580, radius: 28 },
+      { x: 1802, y: 1400, radius: 28 },
+      { x: 698, y: 2600, radius: 28 },
+      { x: 1802, y: 2800, radius: 28 },
     ],
   },
   {
+    // Two dead-straight runways connected by short terminal/cargo curves
     id: "ohare",
     hasWaterEast: false,
-    roadHalfWidth: 42,
-    shoulderHalfWidth: 62,
-    spawnPoint: pt(1190, 690),
-    finishLine: { x: 720, y: 780, width: 120, height: 28 },
-    southTurnaround: { x: 820, y: 3390, width: 320, height: 170 },
+    roadHalfWidth: 56,
+    shoulderHalfWidth: 90,
+    spawnPoint: pt(1682, 304),
+    finishLine: { x: 1630, y: 232, width: 112, height: 32 },
+    southTurnaround: { x: 840, y: 3740, width: 720, height: 200 },
     trackPolylines: [
-      [pt(1200,540),pt(1210,960),pt(1320,1350),pt(1480,1710),pt(1500,2150),pt(1370,2530),pt(1220,2910),pt(1180,3270)],
-      [pt(1180,3270),pt(1120,3470),pt(970,3560),pt(790,3500),pt(670,3330)],
-      [pt(670,3330),pt(650,2910),pt(730,2470),pt(820,2080),pt(780,1580),pt(700,1160),pt(760,730)],
-      [pt(760,730),pt(860,500),pt(1010,410),pt(1160,440),pt(1200,540)],
+      // East runway going south (straight)
+      [pt(1700,264), pt(1700,700), pt(1700,1500), pt(1700,2300), pt(1700,3100), pt(1700,3660)],
+      // South connector — cargo perimeter
+      [pt(1700,3660), pt(1440,3860), pt(1200,3930), pt(960,3860), pt(700,3660)],
+      // West runway going north (straight)
+      [pt(700,3660), pt(700,3100), pt(700,2300), pt(700,1500), pt(700,700), pt(700,264)],
+      // North connector — terminal departure loop
+      [pt(700,264), pt(960,80), pt(1200,20), pt(1440,80), pt(1700,264)],
     ],
     malortPickups: [
-      { x: 1470, y: 1860, radius: 24 },
-      { x: 760, y: 2450, radius: 24 },
+      { x: 1700, y: 2000, radius: 24 },
+      { x: 700, y: 1500, radius: 24 },
     ],
     treeObstacles: [
-      { x: 760, y: 2080, radius: 30 },
-      { x: 1400, y: 2520, radius: 30 },
+      { x: 1764, y: 1100, radius: 32 },
+      { x: 636, y: 1900, radius: 32 },
+      { x: 1764, y: 2700, radius: 32 },
+      { x: 636, y: 3100, radius: 28 },
     ],
   },
   {
+    // Tight winding loop: starts underground, emerges to surface mid-track, dives back down
     id: "lower-wacker",
     hasWaterEast: false,
-    roadHalfWidth: 42,
-    shoulderHalfWidth: 62,
-    spawnPoint: pt(1480, 790),
-    finishLine: { x: 940, y: 930, width: 120, height: 28 },
-    southTurnaround: { x: 1080, y: 3380, width: 360, height: 170 },
+    roadHalfWidth: 40,
+    shoulderHalfWidth: 60,
+    spawnPoint: pt(1440, 560),
+    finishLine: { x: 1188, y: 208, width: 116, height: 52 },
+    southTurnaround: { x: 870, y: 3460, width: 500, height: 210 },
     trackPolylines: [
-      [pt(1410,620),pt(1560,980),pt(1540,1360),pt(1360,1680),pt(1210,1980),pt(1280,2360),pt(1490,2730),pt(1500,3130)],
-      [pt(1500,3130),pt(1450,3430),pt(1270,3560),pt(1050,3510),pt(930,3300)],
-      [pt(930,3300),pt(850,2890),pt(700,2470),pt(630,2020),pt(760,1630),pt(930,1270),pt(980,910)],
-      [pt(980,910),pt(1080,620),pt(1230,500),pt(1380,520),pt(1410,620)],
+      // East/right side going south (tunnel → surface → tunnel)
+      [pt(1400,264), pt(1440,520), pt(1520,860), pt(1580,1210),
+       pt(1560,1560), pt(1480,1910),
+       pt(1440,2270), pt(1510,2620), pt(1550,2970), pt(1500,3290), pt(1460,3450)],
+      // Bottom hairpin
+      [pt(1460,3450), pt(1360,3620), pt(1160,3720), pt(960,3660), pt(840,3470)],
+      // West/left side going north (tunnel → surface → tunnel)
+      [pt(840,3470), pt(800,3210), pt(760,2880), pt(800,2560),
+       pt(860,2260), pt(820,1910),
+       pt(780,1560), pt(760,1210), pt(820,860), pt(880,520), pt(920,264)],
+      // Top connector (tunnel level)
+      [pt(920,264), pt(1080,118), pt(1250,68), pt(1380,128), pt(1400,264)],
     ],
     malortPickups: [
-      { x: 1340, y: 1780, radius: 24 },
-      { x: 730, y: 2280, radius: 24 },
+      { x: 1540, y: 1100, radius: 24 },
+      { x: 790, y: 2060, radius: 24 },
     ],
     treeObstacles: [
-      { x: 1210, y: 2030, radius: 28 },
-      { x: 810, y: 2460, radius: 28 },
-      { x: 1460, y: 2770, radius: 28 },
+      { x: 1578, y: 1760, radius: 26 },
+      { x: 822, y: 1310, radius: 26 },
+      { x: 1488, y: 2740, radius: 26 },
     ],
   },
 ];

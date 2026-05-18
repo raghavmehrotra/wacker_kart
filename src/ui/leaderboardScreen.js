@@ -70,12 +70,16 @@ async function renderTable(trackId, currentUserId) {
     return;
   }
 
+  const MEDALS = { 1: '<span class="lb-medal lb-gold">●</span>', 2: '<span class="lb-medal lb-silver">●</span>', 3: '<span class="lb-medal lb-bronze">●</span>' };
+
   tbody.innerHTML = rows.map(r => {
     const isMe = r.user_id === currentUserId;
+    const rankCell = MEDALS[r.rank] ?? r.rank;
     const name = isMe ? `${r.display_name} ★` : r.display_name;
+    const rowClass = [isMe ? 'lb-me' : '', r.rank <= 3 ? `lb-rank-${r.rank}` : ''].filter(Boolean).join(' ');
     return `
-      <tr class="${isMe ? 'lb-me' : ''}">
-        <td>${r.rank}</td>
+      <tr class="${rowClass}">
+        <td>${rankCell}</td>
         <td>${name}</td>
         <td>${formatTime(r.time_ms)}</td>
       </tr>

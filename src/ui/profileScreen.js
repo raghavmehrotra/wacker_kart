@@ -1,6 +1,6 @@
 import { getAvatarDataUrls } from '../game/sprites/avatarFactory.js';
 import { KART_COLORS, AVATARS } from '../game/config/playerCustomization.js';
-import { getPersonalRecords } from '../lib/db.js';
+import { getPersonalRecords, getRecentRuns } from '../lib/db.js';
 import { getTrackOptions } from '../game/config/createTrackCatalog.js';
 
 function formatTime(ms) {
@@ -73,9 +73,54 @@ export async function showProfileScreen(session, profile, onBack) {
           <div class="pr-title">Personal Records</div>
           ${recordRows}
         </div>
+
+        <div class="run-history-panel">
+          <div class="pr-title">Run History</div>
+          <div class="run-history-tabs" id="run-history-tabs">
+            ${tracks.map((t, i) => `
+              <button class="run-history-tab${i === 0 ? ' active' : ''}" data-track="${t.id}">
+                ${t.name}
+              </button>
+            `).join('')}
+          </div>
+          <div id="run-history-rows" class="run-history-rows">
+            <div class="run-history-empty">Loading…</div>
+          </div>
+        </div>
       </div>
     </div>
   `;
 
   document.getElementById('profile-back').addEventListener('click', onBack);
+
+  async function renderRunHistory(trackId) {
+    const container = document.getElementById('run-history-rows');
+    container.innerHTML = '<div class="run-history-empty">Loading…</div>';
+    const runs = await getRecentRuns(session.user.id, trackId, 20);
+    if (!runs.length) {
+      container.innerHTML = '<div class="run-history-empty">No runs yet on this track.</div>';
+      return;
+    }
+    container.innerHTML = runs.map((r, i) => {
+      const date = new Date(r.recorded_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+      return `
+        <div class="run-history-row">
+          <span class="run-history-num">${i + 1}</span>
+          <span class="run-history-time">${formatTime(r.time_ms)}</span>
+          <span class="run-history-date">${date}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  const firstTrack = tracks[0].id;
+  await renderRunHistory(firstTrack);
+
+  document.getElementById('run-history-tabs').addEventListener('click', async (e) => {
+    const btn = e.target.closest('.run-history-tab');
+    if (!btn) return;
+    document.querySelectorAll('.run-history-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    await renderRunHistory(btn.dataset.track);
+  });
 }
