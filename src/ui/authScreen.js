@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabase.js';
 
-export function showAuthScreen(onLogin) {
+export function showAuthScreen(onLogin, onGuest) {
   const app = document.getElementById('app');
   app.innerHTML = `
     <div id="auth-screen">
@@ -24,6 +24,8 @@ export function showAuthScreen(onLogin) {
             Continue with GitHub
           </button>
           <p id="auth-error" style="color:#e05a4e;margin-top:8px;display:none;font-size:13px;text-align:center"></p>
+          <div class="auth-divider"><span>or</span></div>
+          <button id="auth-guest" class="guest-btn">🏁 Try Lake Shore Drive Free — no account needed!</button>
         </div>
       </div>
     </div>
@@ -44,6 +46,7 @@ export function showAuthScreen(onLogin) {
 
   document.getElementById('auth-google').addEventListener('click', () => signInWith('google'));
   document.getElementById('auth-github').addEventListener('click', () => signInWith('github'));
+  document.getElementById('auth-guest').addEventListener('click', () => onGuest?.());
 
   supabase.auth.onAuthStateChange((event, session) => {
     if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
