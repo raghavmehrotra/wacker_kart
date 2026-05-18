@@ -269,7 +269,7 @@ const TRACKS = [
     roadHalfWidth: 80,
     shoulderHalfWidth: 112,
     spawnPoint: pt(1730, 540),
-    finishLine: { x: 1700, y: 436, width: 96, height: 32 },
+    finishLine: { x: 670, y: 580, width: 160, height: 96 },
     southTurnaround: { x: 840, y: 3550, width: 740, height: 210 },
     trackPolylines: [
       // East side going south (straight)
@@ -298,7 +298,7 @@ const TRACKS = [
     roadHalfWidth: 72,
     shoulderHalfWidth: 108,
     spawnPoint: pt(1682, 304),
-    finishLine: { x: 1630, y: 232, width: 112, height: 32 },
+    finishLine: { x: 628, y: 300, width: 144, height: 96 },
     southTurnaround: { x: 840, y: 3740, width: 720, height: 200 },
     trackPolylines: [
       // East runway going south (straight)
@@ -328,7 +328,7 @@ const TRACKS = [
     roadHalfWidth: 56,
     shoulderHalfWidth: 88,
     spawnPoint: pt(1440, 560),
-    finishLine: { x: 1188, y: 208, width: 116, height: 52 },
+    finishLine: { x: 824, y: 380, width: 180, height: 160 },
     southTurnaround: { x: 870, y: 3460, width: 500, height: 210 },
     trackPolylines: [
       // East/right side going south (tunnel → surface → tunnel)

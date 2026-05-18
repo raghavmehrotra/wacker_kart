@@ -121,7 +121,8 @@ export class TrackManager {
 
   drawOverlays() {
     if (this.finishLine) {
-      this.drawCheckerboardLine(this.finishLine.x, this.finishLine.y, 15, 4, 8);
+      const cells = Math.max(8, Math.round(this.finishLine.width / 8));
+      this.drawCheckerboardLine(this.finishLine.x, this.finishLine.y, cells, 4, 8);
     }
 
     // O'Hare uses parked aircraft as visual obstacles (drawn in decorateOHare)
