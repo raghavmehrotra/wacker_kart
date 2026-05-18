@@ -7,6 +7,13 @@ const TRACKS = [
     totalLaps: 3,
     finishName: "Navy Pier",
     turnaroundName: "50th Street",
+    pizzaObstacles: [
+      { x: 1450, y: 1100, radius: 24 },
+      { x: 1510, y: 1960, radius: 24 },
+      { x: 1580, y: 2720, radius: 24 },
+      { x: 880,  y: 1520, radius: 24 },
+      { x: 810,  y: 2450, radius: 24 },
+    ],
   },
   {
     id: "hyde-park",
@@ -16,6 +23,13 @@ const TRACKS = [
     totalLaps: 3,
     finishName: "Reynolds Club",
     turnaroundName: "Midway Plaisance",
+    pizzaObstacles: [
+      { x: 1750, y: 900,  radius: 24 },
+      { x: 1750, y: 1800, radius: 24 },
+      { x: 1750, y: 2700, radius: 24 },
+      { x: 750,  y: 1200, radius: 24 },
+      { x: 750,  y: 2500, radius: 24 },
+    ],
   },
   {
     id: "ohare",
@@ -25,6 +39,13 @@ const TRACKS = [
     totalLaps: 3,
     finishName: "Terminal 1",
     turnaroundName: "Cargo South",
+    pizzaObstacles: [
+      { x: 1700, y: 900,  radius: 24 },
+      { x: 1700, y: 2200, radius: 24 },
+      { x: 1700, y: 3300, radius: 24 },
+      { x: 700,  y: 1400, radius: 24 },
+      { x: 700,  y: 2800, radius: 24 },
+    ],
   },
   {
     id: "lower-wacker",
@@ -34,6 +55,14 @@ const TRACKS = [
     totalLaps: 3,
     finishName: "Tribune Building",
     turnaroundName: "Canal St",
+    pizzaObstacles: [
+      { x: 1520, y: 860,  radius: 24 },
+      { x: 1480, y: 1910, radius: 24 },
+      { x: 1510, y: 2620, radius: 24 },
+      { x: 800,  y: 1560, radius: 24 },
+      { x: 820,  y: 2560, radius: 24 },
+      { x: 800,  y: 3210, radius: 24 },
+    ],
   },
 ];
 
