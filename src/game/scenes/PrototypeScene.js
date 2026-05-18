@@ -165,7 +165,7 @@ export class PrototypeScene extends Phaser.Scene {
       }
 
       this.raceManager.updateProgress(this.car.getBounds());
-    } else {
+    } else if (!this.racePaused) {
       this.car.applySurfaceDrag(320 * dt);
     }
 
@@ -200,12 +200,7 @@ export class PrototypeScene extends Phaser.Scene {
     const el = document.createElement("div");
     el.id = "pause-overlay";
     el.className = "pause-overlay";
-    el.innerHTML = `
-      <div class="pause-box">
-        <h2>PAUSED</h2>
-        <p>Press Space to resume</p>
-      </div>
-    `;
+    el.innerHTML = `<div class="pause-box"><h2>PAUSED</h2></div>`;
     root.appendChild(el);
   }
 
