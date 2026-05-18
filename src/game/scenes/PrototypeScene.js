@@ -101,7 +101,6 @@ export class PrototypeScene extends Phaser.Scene {
     this.cameras.main.rotation = -this.car.rotation;
     this.hudManager.configureCamera();
     this.racePaused = false;
-    this.events.on('shutdown', stopMusic);
     this.setStatusMessage(`Press Space to begin the ${this.trackMeta.name} run.`);
   }
 
@@ -109,6 +108,7 @@ export class PrototypeScene extends Phaser.Scene {
     const dt = Math.min(delta / 1000, 0.033);
 
     if (Phaser.Input.Keyboard.JustDown(this.restartKey)) {
+      stopMusic();
       this.scene.restart();
       return;
     }
