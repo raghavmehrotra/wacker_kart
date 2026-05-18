@@ -10,6 +10,7 @@ import { showLeaderboardScreen } from "./ui/leaderboardScreen.js";
 import { showProfileScreen } from "./ui/profileScreen.js";
 import { showInstructionsScreen } from "./ui/instructionsScreen.js";
 import { guest } from "./lib/guestState.js";
+import { stopMusic } from "./lib/audioManager.js";
 
 const app = document.querySelector("#app");
 const trackOptions = getTrackOptions();
@@ -167,6 +168,7 @@ function buildGameHTML() {
 // ── Render lobby ──────────────────────────────────────────────────────────────
 
 async function showLobby() {
+  stopMusic();
   if (game) {
     game.destroy(true);
     game = null;

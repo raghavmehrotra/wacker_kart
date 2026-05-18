@@ -10,6 +10,7 @@ import { RaceManager } from "../managers/RaceManager.js";
 import { TrackManager } from "../managers/TrackManager.js";
 import { NpcTrafficManager } from "../managers/NpcTrafficManager.js";
 import { supabase } from "../../lib/supabase.js";
+import { startMusic, stopMusic, playCrashSound } from "../../lib/audioManager.js";
 import { saveTrackRecord } from "../../lib/db.js";
 import { guest } from "../../lib/guestState.js";
 
@@ -99,6 +100,8 @@ export class PrototypeScene extends Phaser.Scene {
     this.cameras.main.setRoundPixels(false);
     this.cameras.main.rotation = -this.car.rotation;
     this.hudManager.configureCamera();
+    this.racePaused = false;
+    this.events.on('shutdown', stopMusic);
     this.setStatusMessage(`Press Space to begin the ${this.trackMeta.name} run.`);
   }
 
@@ -110,11 +113,22 @@ export class PrototypeScene extends Phaser.Scene {
       return;
     }
 
-    if (!this.raceManager.raceStarted && Phaser.Input.Keyboard.JustDown(this.startKey)) {
-      this.raceManager.startRace();
+    if (Phaser.Input.Keyboard.JustDown(this.startKey)) {
+      if (!this.raceManager.raceStarted) {
+        this.raceManager.startRace();
+        startMusic(this.trackMeta.id);
+      } else if (!this.raceManager.raceFinished) {
+        this.racePaused = !this.racePaused;
+        if (this.racePaused) {
+          stopMusic();
+          this.setStatusMessage("Paused — Press Space to resume.");
+        } else {
+          startMusic(this.trackMeta.id);
+        }
+      }
     }
 
-    if (this.raceManager.raceStarted && !this.raceManager.raceFinished) {
+    if (this.raceManager.raceStarted && !this.raceManager.raceFinished && !this.racePaused) {
       this.raceManager.tick(delta);
       this.playerStunMs = Math.max(0, this.playerStunMs - delta);
       const activeControls = this.playerStunMs > 0
@@ -131,6 +145,7 @@ export class PrototypeScene extends Phaser.Scene {
       if (this.trackManager.hitTreeObstacle(this.car.getBounds())) {
         this.car.bounceToPreviousPosition();
         this.car.speed = 0;
+        playCrashSound();
         this.setStatusMessage("Tree collision. You stopped on impact.");
       }
 
@@ -141,6 +156,7 @@ export class PrototypeScene extends Phaser.Scene {
         if (hit && this.playerStunMs <= 0) {
           this.car.speed = 0;
           this.playerStunMs = 1500;
+          playCrashSound();
           this.setStatusMessage("Crash! Watch the traffic.");
         }
       }

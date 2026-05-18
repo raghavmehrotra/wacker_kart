@@ -10,7 +10,7 @@ export function showInstructionsScreen(onBack) {
           <div class="instr-grid">
             <span class="instr-key">↑ / ↓</span><span>Accelerate / Brake</span>
             <span class="instr-key">← / →</span><span>Steer</span>
-            <span class="instr-key">Space</span><span>Start the race</span>
+            <span class="instr-key">Space</span><span>Start / Pause the race</span>
             <span class="instr-key">X</span><span>Use held item</span>
             <span class="instr-key">R</span><span>Restart</span>
           </div>

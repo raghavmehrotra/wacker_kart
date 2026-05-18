@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { playPickupSound, playUseItemSound } from "../../lib/audioManager.js";
 
 const DEFAULT_MULTIPLIERS = { speedMultiplier: 1, accelerationMultiplier: 1, steeringMultiplier: 1 };
 
@@ -84,6 +85,7 @@ export class ItemManager {
     if (!def) return false;
     this._activateEffect(car, def);
     this.heldItem = null;
+    playUseItemSound();
     return true;
   }
 
@@ -121,6 +123,7 @@ export class ItemManager {
       this.heldItem = key;
       pickup.collected = true;
       pickup.sprite?.setVisible(false);
+      playPickupSound();
       this.onStatusChange(ITEM_REGISTRY[key].pickupMsg);
       break;
     }

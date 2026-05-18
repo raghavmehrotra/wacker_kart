@@ -24,8 +24,8 @@ const OHARE_LOOP = [
   { x: 960, y: 80 },   { x: 1200, y: 20 },  { x: 1440, y: 80 },
 ];
 const OHARE_SPECS = [
-  { startIdx: 0, speed: 75, bodyColor: 0xd4a820, loop: OHARE_LOOP, dir: -1, large: true },
-  { startIdx: 9, speed: 62, bodyColor: 0x6a8870, loop: OHARE_LOOP, dir: -1, large: true },
+  { startIdx: 4, speed: 75, bodyColor: 0xd4a820, loop: OHARE_LOOP, dir: -1, large: true },
+  { startIdx: 12, speed: 62, bodyColor: 0x6a8870, loop: OHARE_LOOP, dir: -1, large: true },
 ];
 
 // ── Hyde Park: moving students — east crossings, west crossings, wanderers ─
