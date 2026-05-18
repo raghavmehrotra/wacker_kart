@@ -11,6 +11,7 @@ import { showProfileScreen } from "./ui/profileScreen.js";
 import { showInstructionsScreen } from "./ui/instructionsScreen.js";
 import { guest } from "./lib/guestState.js";
 import { startMusic, stopMusic } from "./lib/audioManager.js";
+import { esc } from "./lib/html.js";
 
 const app = document.querySelector("#app");
 const trackOptions = getTrackOptions();
@@ -90,7 +91,7 @@ function buildLobbyHTML(personalRecords = []) {
 
   const userChip = currentSession
     ? `<div class="user-chip">
-        <span class="user-email">${currentSession.user.email}</span>
+        <span class="user-email">${esc(currentSession.user.email)}</span>
         <button id="profile-btn" class="logout-btn">Profile</button>
         <button id="logout-btn" class="logout-btn">Log out</button>
       </div>`

@@ -2,6 +2,7 @@ import { getAvatarDataUrls } from '../game/sprites/avatarFactory.js';
 import { KART_COLORS, AVATARS } from '../game/config/playerCustomization.js';
 import { getPersonalRecords, getRecentRuns } from '../lib/db.js';
 import { getTrackOptions } from '../game/config/createTrackCatalog.js';
+import { esc } from '../lib/html.js';
 
 function formatTime(ms) {
   const totalCs = Math.floor(ms / 10);
@@ -48,15 +49,15 @@ export async function showProfileScreen(session, profile, onBack) {
           <img src="${avatarUrl}" alt="${avatarLabel}" class="profile-avatar-img">
         </div>
 
-        <div class="profile-name">${profile.display_name}</div>
-        <div class="profile-email">${session.user.email}</div>
+        <div class="profile-name">${esc(profile.display_name)}</div>
+        <div class="profile-email">${esc(session.user.email)}</div>
 
         <div class="profile-meta-row">
           <div class="profile-meta-item">
             <div class="profile-meta-label">Kart</div>
             <div class="profile-meta-value">
               <span class="profile-color-dot" style="background:${kartColor?.css ?? '#888'}"></span>
-              ${kartColor?.label ?? profile.kart_color_key}
+              ${esc(kartColor?.label ?? profile.kart_color_key)}
             </div>
           </div>
           <div class="profile-meta-item">
@@ -65,7 +66,7 @@ export async function showProfileScreen(session, profile, onBack) {
           </div>
           <div class="profile-meta-item">
             <div class="profile-meta-label">Signed in via</div>
-            <div class="profile-meta-value profile-provider">${provider}</div>
+            <div class="profile-meta-value profile-provider">${esc(provider)}</div>
           </div>
         </div>
 

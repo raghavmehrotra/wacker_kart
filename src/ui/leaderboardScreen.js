@@ -1,5 +1,6 @@
 import { getLeaderboard } from '../lib/db.js';
 import { getTrackOptions } from '../game/config/createTrackCatalog.js';
+import { esc } from '../lib/html.js';
 
 function formatTime(ms) {
   const totalCs = Math.floor(ms / 10);
@@ -75,7 +76,7 @@ async function renderTable(trackId, currentUserId) {
   tbody.innerHTML = rows.map(r => {
     const isMe = r.user_id === currentUserId;
     const rankCell = MEDALS[r.rank] ?? r.rank;
-    const name = isMe ? `${r.display_name} ★` : r.display_name;
+    const name = isMe ? `${esc(r.display_name)} ★` : esc(r.display_name);
     const rowClass = [isMe ? 'lb-me' : '', r.rank <= 3 ? `lb-rank-${r.rank}` : ''].filter(Boolean).join(' ');
     return `
       <tr class="${rowClass}">
