@@ -8,6 +8,7 @@ import { HudManager } from "../managers/HudManager.js";
 import { ItemManager } from "../managers/ItemManager.js";
 import { RaceManager } from "../managers/RaceManager.js";
 import { TrackManager } from "../managers/TrackManager.js";
+import { NpcTrafficManager } from "../managers/NpcTrafficManager.js";
 import { supabase } from "../../lib/supabase.js";
 import { saveTrackRecord } from "../../lib/db.js";
 
@@ -80,6 +81,11 @@ export class PrototypeScene extends Phaser.Scene {
     this.itemManager.drawPickups();
     this.itemManager.reset(this.car);
 
+    this.npcTraffic = this.trackMeta.id === "lower-wacker"
+      ? new NpcTrafficManager(this)
+      : null;
+    this.playerStunMs = 0;
+
     this.hudManager = new HudManager(this, this.trackMeta.totalLaps);
 
     this.cameras.main.setBounds(0, 0, tilemap.widthInPixels, tilemap.heightInPixels);
@@ -105,7 +111,11 @@ export class PrototypeScene extends Phaser.Scene {
 
     if (this.raceManager.raceStarted && !this.raceManager.raceFinished) {
       this.raceManager.tick(delta);
-      this.car.update(dt, this.controls);
+      this.playerStunMs = Math.max(0, this.playerStunMs - delta);
+      const activeControls = this.playerStunMs > 0
+        ? { up: { isDown: false }, down: { isDown: false }, left: { isDown: false }, right: { isDown: false } }
+        : this.controls;
+      this.car.update(dt, activeControls);
       this.car.keepInBounds(this.tilemap.widthInPixels, this.tilemap.heightInPixels);
       this.trackManager.applyTrackSurface(this.car, dt);
 
@@ -120,6 +130,16 @@ export class PrototypeScene extends Phaser.Scene {
       }
 
       this.itemManager.update(delta, this.car);
+
+      if (this.npcTraffic) {
+        const hit = this.npcTraffic.update(delta, this.car);
+        if (hit && this.playerStunMs <= 0) {
+          this.car.speed = 0;
+          this.playerStunMs = 1500;
+          this.setStatusMessage("Crash! Watch the traffic.");
+        }
+      }
+
       this.raceManager.updateProgress(this.car.getBounds());
     } else {
       this.car.applySurfaceDrag(320 * dt);
