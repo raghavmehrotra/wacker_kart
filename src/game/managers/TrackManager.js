@@ -368,19 +368,46 @@ export class TrackManager {
     ];
     for (const [tx, ty] of treePts) this.drawTreeCluster(tx, ty, 13);
 
-    // ── "Grounds of Being" sign (infield, ~100px south of spawn) ─────────────
-    const gob = this.scene.add.graphics().setDepth(3);
-    gob.fillStyle(0x4a3820, 1);
-    gob.fillRect(1280, 628, 6, 32);   // post
-    gob.fillRect(1286, 628, 6, 32);
-    gob.fillStyle(0xd4c89a, 1);
-    gob.fillRect(1250, 610, 80, 22);  // sign board
-    gob.lineStyle(1, 0x9a8a68, 1);
-    gob.strokeRect(1250, 610, 80, 22);
-    const gobText = this.scene.add.text(1290, 621, 'Grounds of Being', {
-      fontSize: '7px', color: '#3a2810', fontFamily: 'serif',
-    }).setOrigin(0.5).setDepth(4);
-    void gobText;
+    // ── Building labels ───────────────────────────────────────────────────────
+    this.scene.add.text(1927, 850, 'Rosenwald Hall', {
+      fontSize: '9px', color: '#3a2810', fontFamily: 'serif', fontStyle: 'bold',
+    }).setOrigin(0.5).setDepth(5);
+    this.scene.add.text(1926, 1130, 'Grounds of Being ☕', {
+      fontSize: '9px', color: '#3a2810', fontFamily: 'serif', fontStyle: 'bold',
+    }).setOrigin(0.5).setDepth(5);
+
+    // ── Taco trucks at south U-turn ───────────────────────────────────────────
+    const drawTacoTruck = (tx, ty) => {
+      const t = this.scene.add.graphics().setDepth(5);
+      // Truck body
+      t.fillStyle(0xe8a020, 1);
+      t.fillRect(tx - 26, ty - 16, 52, 32);
+      // Cab
+      t.fillStyle(0xc87818, 1);
+      t.fillRect(tx - 26, ty - 16, 18, 32);
+      // Serving window
+      t.fillStyle(0x99ccdd, 0.9);
+      t.fillRect(tx - 2, ty - 10, 20, 14);
+      t.lineStyle(1, 0x886010, 1);
+      t.strokeRect(tx - 2, ty - 10, 20, 14);
+      // Awning
+      t.fillStyle(0xcc3311, 1);
+      t.fillRect(tx - 4, ty - 18, 28, 5);
+      // Wheels
+      t.fillStyle(0x222222, 1);
+      t.fillCircle(tx - 18, ty + 16, 6);
+      t.fillCircle(tx + 14, ty + 16, 6);
+      // Roof sign board
+      t.fillStyle(0xfff8e0, 1);
+      t.fillRect(tx - 22, ty - 32, 44, 14);
+      t.lineStyle(2, 0xcc3311, 1);
+      t.strokeRect(tx - 22, ty - 32, 44, 14);
+      this.scene.add.text(tx, ty - 25, '🌮 TACOS', {
+        fontSize: '8px', color: '#cc3311', fontFamily: 'sans-serif', fontStyle: 'bold',
+      }).setOrigin(0.5).setDepth(6);
+    };
+    drawTacoTruck(980, 3650);
+    drawTacoTruck(1390, 3650);
   }
 
   decorateOHare() {

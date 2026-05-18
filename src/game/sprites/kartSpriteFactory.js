@@ -1,6 +1,58 @@
 const W = 40;
 const H = 60;
 
+export function generateBicycleTexture(scene, colorKey, hexColor) {
+  const key = `bike-${colorKey}`;
+  if (scene.textures.exists(key)) return key;
+
+  const gfx = scene.make.graphics({ add: false });
+
+  // ── Wheels ─────────────────────────────────────────────────────────────────
+  gfx.fillStyle(0x1a1a1a, 1);
+  gfx.fillEllipse(W / 2, 10, 13, 18);   // front wheel
+  gfx.fillEllipse(W / 2, H - 10, 13, 18); // rear wheel
+  gfx.fillStyle(0x888888, 1);
+  gfx.fillEllipse(W / 2, 10, 6, 9);     // front rim
+  gfx.fillEllipse(W / 2, H - 10, 6, 9); // rear rim
+
+  // ── Frame ──────────────────────────────────────────────────────────────────
+  gfx.fillStyle(0x333333, 1);
+  // Down tube
+  gfx.fillRect(W / 2 - 1, 18, 3, H - 36);
+  // Seat tube diagonal (chainstay left)
+  gfx.lineStyle(2, 0x444444, 1);
+  gfx.beginPath();
+  gfx.moveTo(W / 2 - 4, H - 18); gfx.lineTo(W / 2 - 10, H / 2);
+  gfx.moveTo(W / 2 + 4, H - 18); gfx.lineTo(W / 2 + 10, H / 2);
+  gfx.strokePath();
+
+  // ── Handlebars ─────────────────────────────────────────────────────────────
+  gfx.fillStyle(0x333333, 1);
+  gfx.fillRect(W / 2 - 11, 16, 22, 3);  // handlebar bar
+  gfx.fillRect(W / 2 - 11, 16, 3, 6);   // left grip
+  gfx.fillRect(W / 2 + 8, 16, 3, 6);    // right grip
+
+  // ── Seat ───────────────────────────────────────────────────────────────────
+  gfx.fillStyle(0x1a1a1a, 1);
+  gfx.fillRect(W / 2 - 7, H - 24, 14, 4);
+
+  // ── Rider body (jersey in kart color) ──────────────────────────────────────
+  gfx.fillStyle(hexColor, 1);
+  gfx.fillEllipse(W / 2, H / 2 + 2, 16, 20); // torso
+
+  // ── Helmet ─────────────────────────────────────────────────────────────────
+  gfx.fillStyle(0x1a1a1a, 1);
+  gfx.fillCircle(W / 2, H / 2 - 11, 7);
+  gfx.fillStyle(darken(hexColor, 0.2), 1);
+  gfx.fillCircle(W / 2, H / 2 - 11, 5);
+  gfx.fillStyle(0x1a1a1a, 0.8);
+  gfx.fillRect(W / 2 - 4, H / 2 - 10, 8, 3); // visor
+
+  gfx.generateTexture(key, W, H);
+  gfx.destroy();
+  return key;
+}
+
 export function generateKartTexture(scene, colorKey, hexColor) {
   const key = `kart-${colorKey}`;
   if (scene.textures.exists(key)) return key;
