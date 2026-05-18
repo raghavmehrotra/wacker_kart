@@ -8,6 +8,7 @@ import { upsertProfile, loadProfile, getPersonalRecords } from "./lib/db.js";
 import { showAuthScreen } from "./ui/authScreen.js";
 import { showLeaderboardScreen } from "./ui/leaderboardScreen.js";
 import { showProfileScreen } from "./ui/profileScreen.js";
+import { showInstructionsScreen } from "./ui/instructionsScreen.js";
 import { guest } from "./lib/guestState.js";
 
 const app = document.querySelector("#app");
@@ -142,6 +143,7 @@ function buildLobbyHTML(personalRecords = []) {
           ? `<p class="guest-banner">Playing as guest — <button id="signin-from-lobby" class="inline-link-btn">sign in</button> to save times &amp; unlock all tracks.</p>`
           : `<button id="leaderboard-btn" class="leaderboard-btn">🏆 Leaderboard</button>`
         }
+        <button id="how-to-play-btn" class="how-to-play-btn">? How to Play</button>
         <button id="start-btn" class="start-btn">Start Racing ▶</button>
       </section>
     </div>
@@ -250,6 +252,10 @@ function bindLobbyEvents() {
   document.getElementById("leaderboard-btn")?.addEventListener("click", () => {
     if (!currentSession) return;
     showLeaderboardScreen(currentSession, showLobby);
+  });
+
+  document.getElementById("how-to-play-btn")?.addEventListener("click", () => {
+    showInstructionsScreen(() => showLobby());
   });
 
   document.getElementById("start-btn")?.addEventListener("click", showGame);
