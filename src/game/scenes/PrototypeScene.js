@@ -81,6 +81,7 @@ export class PrototypeScene extends Phaser.Scene {
       onStatusChange: (msg) => this.setStatusMessage(msg),
     });
     this.itemManager.drawPickups();
+    this.itemManager.initStaticPizzas(this.trackMeta.pizzaObstacles ?? []);
     this.itemManager.reset(this.car);
 
     const NPC_TRACKS = ["lower-wacker", "ohare", "hyde-park"];

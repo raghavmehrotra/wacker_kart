@@ -11,14 +11,6 @@ const ITEM_REGISTRY = {
     multipliers: { speedMultiplier: 1.3, accelerationMultiplier: 1.3, steeringMultiplier: 0.25 },
     speedKick: true,
   },
-  "deep-dish-pizza": {
-    label: "Pizza",
-    pickupMsg: "Picked up a deep dish pizza. Press X to drop it behind you.",
-    useMsg: "Pizza dropped! Anyone who drives through it slows down.",
-    isHazard: true,
-    hazardSlowDuration: 2000,
-    hazardMultipliers: { speedMultiplier: 0.5, accelerationMultiplier: 1, steeringMultiplier: 0.8 },
-  },
 };
 
 const ITEM_KEYS = Object.keys(ITEM_REGISTRY);
@@ -34,7 +26,7 @@ export class ItemManager {
     this.activeEffect = null;
 
     this.pizzaSlowRemainingMs = 0;
-    this.activeHazards = [];
+    this.staticPizzas = [];
   }
 
   drawPickups() {
@@ -46,16 +38,21 @@ export class ItemManager {
       const glass = this.scene.add.circle(0, 0, r, 0xb36a1f);
       glass.setStrokeStyle(4, 0xfff3a1);
       const inner = this.scene.add.circle(0, 0, r - 8, 0xf3cf73);
-      const label = this.scene.add.text(0, -1, "?", {
-        color: "#4f1600",
-        fontFamily: "Trebuchet MS, sans-serif",
-        fontSize: "22px",
-        fontStyle: "bold",
+      const label = this.scene.add.text(0, -1, "🥃", {
+        fontFamily: "sans-serif",
+        fontSize: "18px",
       });
       label.setOrigin(0.5);
       pickup.sprite = this.scene.add.container(pickup.x, pickup.y, [glow, ring, glass, inner, label]);
       pickup.sprite.setDepth(8);
     }
+  }
+
+  initStaticPizzas(positions) {
+    this.staticPizzas = positions.map(({ x, y, radius }) => ({
+      x, y, radius,
+      sprite: this._makePizzaSprite(x, y),
+    }));
   }
 
   reset(car) {
@@ -64,9 +61,6 @@ export class ItemManager {
     this.activeEffect = null;
     this.pizzaSlowRemainingMs = 0;
     car.setEffectMultipliers(DEFAULT_MULTIPLIERS);
-
-    for (const hazard of this.activeHazards) hazard.sprite?.destroy();
-    this.activeHazards = [];
 
     for (const pickup of this.pickups) {
       pickup.collected = false;
@@ -77,8 +71,8 @@ export class ItemManager {
   update(delta, car) {
     this._tickEffect(delta, car);
     this._tickPizzaSlow(delta, car);
-    this._tickHazards(delta, car);
     this._checkPickupCollisions(car);
+    this._checkStaticPizzaCollisions(car);
   }
 
   tryUseHeldItem(car) {
@@ -86,16 +80,9 @@ export class ItemManager {
       this.onStatusChange("No item held. Drive through a pickup first.");
       return false;
     }
-
     const def = ITEM_REGISTRY[this.heldItem];
     if (!def) return false;
-
-    if (def.isHazard) {
-      this._dropPizzaHazard(car);
-    } else {
-      this._activateEffect(car, def);
-    }
-
+    this._activateEffect(car, def);
     this.heldItem = null;
     return true;
   }
@@ -139,6 +126,17 @@ export class ItemManager {
     }
   }
 
+  _checkStaticPizzaCollisions(car) {
+    const b = car.getBounds();
+    const cx = b.x + b.width / 2;
+    const cy = b.y + b.height / 2;
+    for (const pizza of this.staticPizzas) {
+      if (Math.hypot(pizza.x - cx, pizza.y - cy) < pizza.radius + 20) {
+        this._applyPizzaSlow(car);
+      }
+    }
+  }
+
   _activateEffect(car, def) {
     this.effectRemainingMs = def.duration;
     this.activeEffect = def;
@@ -172,14 +170,6 @@ export class ItemManager {
     }
   }
 
-  _dropPizzaHazard(car) {
-    const behindX = car.sprite.x - Math.sin(car.rotation) * 55;
-    const behindY = car.sprite.y + Math.cos(car.rotation) * 55;
-    const sprite = this._makePizzaSprite(behindX, behindY);
-    this.activeHazards.push({ x: behindX, y: behindY, radius: 32, sprite });
-    this.onStatusChange(ITEM_REGISTRY["deep-dish-pizza"].useMsg);
-  }
-
   _makePizzaSprite(x, y) {
     const key = "pizza-hazard";
     if (!this.scene.textures.exists(key)) {
@@ -202,25 +192,11 @@ export class ItemManager {
     return sprite;
   }
 
-  _tickHazards(delta, car) {
-    const carBounds = car.getBounds();
-    this.activeHazards = this.activeHazards.filter((h) => {
-      const hb = new Phaser.Geom.Rectangle(h.x - h.radius, h.y - h.radius, h.radius * 2, h.radius * 2);
-      if (Phaser.Geom.Intersects.RectangleToRectangle(carBounds, hb)) {
-        this._applyPizzaSlow(car);
-        h.sprite?.destroy();
-        return false;
-      }
-      return true;
-    });
-  }
-
   _applyPizzaSlow(car) {
     if (this.pizzaSlowRemainingMs > 0) return;
-    const def = ITEM_REGISTRY["deep-dish-pizza"];
-    this.pizzaSlowRemainingMs = def.hazardSlowDuration;
+    this.pizzaSlowRemainingMs = 2000;
     if (this.effectRemainingMs <= 0) {
-      car.setEffectMultipliers(def.hazardMultipliers);
+      car.setEffectMultipliers({ speedMultiplier: 0.5, accelerationMultiplier: 1, steeringMultiplier: 0.8 });
     }
     this.onStatusChange("Hit a pizza! Slowed for 2 seconds.");
   }
