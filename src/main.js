@@ -7,6 +7,7 @@ import { supabase } from "./lib/supabase.js";
 import { upsertProfile, loadProfile, getPersonalRecords } from "./lib/db.js";
 import { showAuthScreen } from "./ui/authScreen.js";
 import { showLeaderboardScreen } from "./ui/leaderboardScreen.js";
+import { showProfileScreen } from "./ui/profileScreen.js";
 
 const app = document.querySelector("#app");
 const trackOptions = getTrackOptions();
@@ -85,6 +86,7 @@ function buildLobbyHTML(personalRecords = []) {
   const userChip = currentSession
     ? `<div class="user-chip">
         <span class="user-email">${currentSession.user.email}</span>
+        <button id="profile-btn" class="logout-btn">Profile</button>
         <button id="logout-btn" class="logout-btn">Log out</button>
       </div>`
     : "";
@@ -214,6 +216,16 @@ function bindLobbyEvents() {
       customization.playerName = e.target.value.trim() || "Player 1";
       scheduleProfileSave();
     }, 400);
+  });
+
+  document.getElementById("profile-btn")?.addEventListener("click", () => {
+    if (!currentSession) return;
+    const profile = {
+      display_name: customization.playerName,
+      kart_color_key: customization.kartColorKey,
+      avatar_key: customization.avatarKey,
+    };
+    showProfileScreen(currentSession, profile, showLobby);
   });
 
   document.getElementById("logout-btn")?.addEventListener("click", async () => {
